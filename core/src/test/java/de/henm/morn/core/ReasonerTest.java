@@ -69,14 +69,4 @@ public class ReasonerTest {
 
         assertTrue(reasoner.query(ctFactory.build(son, lot, haran)));
     }
-
-    @Test
-    public void reasonerShouldNotBeInitializedWithNull() {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    @Test
-    public void queryShouldThrowSensibleExceptionIfQueryIsNull() {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
 }
