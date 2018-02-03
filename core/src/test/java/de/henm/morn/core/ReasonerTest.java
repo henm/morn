@@ -23,10 +23,10 @@ public class ReasonerTest {
     @Test
     public void simpleFactsShouldBeDeduced() {
         final Term a = new Constant("a");
-        final Program program = new Program();
-        program.addFact(new Fact(a));
+        final KnowledgeBase kb = new KnowledgeBase();
+        kb.addFact(new Fact(a));
 
-        final Reasoner reasoner = new Reasoner(program);
+        final Reasoner reasoner = new Reasoner(kb);
 
         assertTrue(reasoner
             .query(a));
@@ -41,17 +41,17 @@ public class ReasonerTest {
         final Constant milcah = new Constant("milcah");
         final Constant yiscah = new Constant("yiscah");
 
-        final Atom father = new Atom("father");
-        final Atom mother = new Atom("mother");
-        final Atom male = new Atom("male");
-        final Atom female = new Atom("female");
-        final Atom son = new Atom("son");
-        final Atom daughter = new Atom("daughter");
+        final Functor father = new Functor("father");
+        final Functor mother = new Functor("mother");
+        final Functor male = new Functor("male");
+        final Functor female = new Functor("female");
+        final Functor son = new Functor("son");
+        final Functor daughter = new Functor("daughter");
 
         final CompoundTermFactory ctFactory = new CompoundTermFactory();
 
-        final Program program = new Program();
-        program.addFact(ctFactory.build(father, abraham, isaac))
+        final KnowledgeBase kb = new KnowledgeBase();
+        kb.addFact(ctFactory.build(father, abraham, isaac))
                 .addFact(ctFactory.build(male, isaac))
                 .addFact(ctFactory.build(father, haran, lot))
                 .addFact(ctFactory.build(male, lot))
@@ -62,10 +62,10 @@ public class ReasonerTest {
 
         final FreeVariable x = new FreeVariable("X");
         final FreeVariable y = new FreeVariable("Y");
-        program.addRule(ctFactory.build(son, x, y).entailed(ctFactory.build(father, y, x), ctFactory.build(male, x)))
+        kb.addRule(ctFactory.build(son, x, y).entailed(ctFactory.build(father, y, x), ctFactory.build(male, x)))
                 .addRule(ctFactory.build(daughter, x, y).entailed(ctFactory.build(father, y, x), ctFactory.build(female, x)));
 
-        final Reasoner reasoner = new Reasoner(program);
+        final Reasoner reasoner = new Reasoner(kb);
 
         assertTrue(reasoner.query(ctFactory.build(son, lot, haran)));
     }

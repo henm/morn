@@ -26,13 +26,13 @@ import java.util.Set;
  *
  * @author henm
  */
-public class ProgramTest {
+public class KnowledgeBaseTest {
 
     private Constant a;
     private Constant b;
     private Constant c;
     private FreeVariable x;
-    private Atom p;
+    private Functor p;
     private CompoundTermFactory ctFactory;
 
     @Before
@@ -41,18 +41,18 @@ public class ProgramTest {
         this.b = new Constant("b");
         this.c = new Constant("c");
         this.x = new FreeVariable("X");
-        this.p = new Atom("p");
+        this.p = new Functor("p");
         this.ctFactory = new CompoundTermFactory();
     }
 
     @Test
     public void getAllUsedConstantsShouldReturnAllConstants() {
-        final Program program = new Program();
-        program.addFact(c);
-        program.addFact(ctFactory.build(p, b));
-        program.addRule(new Rule(ctFactory.build(p, b), ctFactory.build(p, c)));
+        final KnowledgeBase kb = new KnowledgeBase();
+        kb.addFact(c);
+        kb.addFact(ctFactory.build(p, b));
+        kb.addRule(ctFactory.build(p, b), ctFactory.build(p, c));
 
-        final Set<Term> usedConstants = program.getAllUsedConstants();
+        final Set<Term> usedConstants = kb.getAllUsedConstants();
 
         Assert.assertEquals(2, usedConstants.size());
         Assert.assertTrue(usedConstants.contains(b));
@@ -61,13 +61,13 @@ public class ProgramTest {
 
     @Test
     public void getGroundedRulesShouldNotContainAnyRuleWithFreeVariables() {
-        final Program program = new Program();
+        final KnowledgeBase kb = new KnowledgeBase();
         final Fact groundenFact = new Fact(ctFactory.build(p, a));
 
-        program.addFact(groundenFact);
-        program.addFact(ctFactory.build(p, x));
+        kb.addFact(groundenFact);
+        kb.addFact(ctFactory.build(p, x));
 
-        final Collection<Clause> groundedRules = program.getGroundedRules();
+        final Collection<Clause> groundedRules = kb.getGroundedRules();
 
         Assert.assertEquals(1, groundedRules.size());
         Assert.assertTrue(groundedRules.contains(groundenFact));

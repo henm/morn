@@ -24,18 +24,18 @@ import java.util.List;
  */
 public class CompoundTerm2 implements CompoundTerm {
 
-    private final Atom functor;
+    private final Functor functor;
     private final Term arg1;
     private final Term arg2;
 
-    CompoundTerm2(Atom functor, Term arg1, Term arg2) {
+    CompoundTerm2(Functor functor, Term arg1, Term arg2) {
         this.functor = functor;
         this.arg1 = arg1;
         this.arg2 = arg2;
     }
 
     @Override
-    public Atom getFunctor() {
+    public Functor getFunctor() {
         return functor;
     }
 

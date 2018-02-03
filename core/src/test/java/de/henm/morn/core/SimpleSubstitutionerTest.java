@@ -28,8 +28,8 @@ public class SimpleSubstitutionerTest {
     private final SimpleSubstitutioner simpleSubstitutioner;
     private final CompoundTermFactory compoundTermFactory;
 
-    private Atom p;
-    private Atom q;
+    private Functor p;
+    private Functor q;
     private Constant c;
     private FreeVariable x;
     private Term pOfc;
@@ -44,8 +44,8 @@ public class SimpleSubstitutionerTest {
 
     @Before
     public void setUp() {
-        this.p = new Atom("p");
-        this.q = new Atom("q");
+        this.p = new Functor("p");
+        this.q = new Functor("q");
         this.c = new Constant("c");
         this.x = new FreeVariable("X");
         this.pOfc = compoundTermFactory.build(p, c);

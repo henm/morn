@@ -22,12 +22,12 @@ import java.util.List;
  */
 public class CompoundTerm3 implements CompoundTerm {
 
-    private final Atom functor;
+    private final Functor functor;
     private final Term arg1;
     private final Term arg2;
     private final Term arg3;
 
-    CompoundTerm3(Atom functor, Term arg1, Term arg2, Term arg3) {
+    CompoundTerm3(Functor functor, Term arg1, Term arg2, Term arg3) {
         this.functor = functor;
         this.arg1 = arg1;
         this.arg2 = arg2;
@@ -35,7 +35,7 @@ public class CompoundTerm3 implements CompoundTerm {
     }
 
     @Override
-    public Atom getFunctor() {
+    public Functor getFunctor() {
         return functor;
     }
 

@@ -44,7 +44,7 @@ public final class SimpleSubstitutioner {
         terms.addAll(clause.getBody());
 
         // Write rule as a term with functor '%'
-        final Term asTerm = compoundTermFactory.build(new Atom("%"), terms);
+        final Term asTerm = compoundTermFactory.build(new Functor("%"), terms);
         final Collection<Term> substituted = getAllPossibleSubstitutions(asTerm, toSubstitute);
 
         return substituted.stream().map(t -> {

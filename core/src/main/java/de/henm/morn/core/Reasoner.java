@@ -14,6 +14,7 @@
  */
 package de.henm.morn.core;
 
+import de.henm.morn.core.KnowledgeBase;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -25,10 +26,10 @@ import java.util.concurrent.LinkedBlockingDeque;
  */
 public class Reasoner {
 
-    private final Program program;
+    private final KnowledgeBase knowledgeBase;
 
-    public Reasoner(Program program) {
-        this.program = program;
+    public Reasoner(KnowledgeBase knowledgeBase) {
+        this.knowledgeBase = knowledgeBase;
     }
 
     /**
@@ -43,7 +44,7 @@ public class Reasoner {
 
             final Term goal = resolvent.poll();
             // Find a rule with goal as head
-            final Optional<Clause> rule = program.findRuleWithHead(goal);
+            final Optional<Clause> rule = knowledgeBase.findRuleWithHead(goal);
             if (rule.isPresent()) {
                 resolvent.addAll(rule.get().getBody());
             } else {

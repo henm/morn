@@ -19,6 +19,8 @@ package de.henm.morn.core;
  */
 public class Constant implements Term {
 
+    public static Constant _true = new Constant("true");
+
     private final String name;
 
     public Constant(String name) {
