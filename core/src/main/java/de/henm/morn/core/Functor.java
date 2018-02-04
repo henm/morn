@@ -25,4 +25,13 @@ public class Functor {
         this.name = name;
     }
 
+    public Term apply(Term... terms) {
+        return new CompoundTermFactory().build(this, terms);
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
 }

@@ -16,19 +16,20 @@ package de.henm.morn.reasoner;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 import de.henm.morn.core.Clause;
 import de.henm.morn.core.CompoundTerm;
-import de.henm.morn.core.Term;
 import de.henm.morn.core.Constant;
+import de.henm.morn.core.Term;
 
 /**
  * Simple reasoner.
@@ -50,27 +51,50 @@ public class Reasoner {
      *
      */
     public boolean query(Term query) {
-        final Queue<Term> resolvent = new LinkedBlockingDeque<>();
+        final Stack<BacktrackingState> backtrackingStack = new Stack<>();
+
+        Queue<Term> resolvent = new LinkedBlockingDeque<>();
         resolvent.add(query);
 
         while (!resolvent.isEmpty()) {
 
             final Term goal = resolvent.poll();
-            // Find a rule with goal as head
-            final Optional<Clause> rule = this.findRuleWithHead(goal);
-            if (rule.isPresent()) {
-                resolvent.addAll(rule.get().getBody());
-            } else {
-                return false;
+            // Find rules with goal as head
+            List<Clause> rules = this.findRulesWithHead(goal);
+
+            if (rules.isEmpty()) {
+                // Backtrack
+                if (backtrackingStack.isEmpty()) {
+                    // Tried everything
+                    return false;
+                } else {
+                    // Restore
+                    final BacktrackingState backtrack = backtrackingStack.pop();
+                    resolvent = backtrack.getResolvent();
+                    rules = backtrack.getRestOfRules();
+                }
             }
+
+            // Choose a backtracking-point
+            final Clause rule = rules.get(0);
+
+            final List<Clause> restOfRules = rules.subList(1, rules.size());
+            if (!restOfRules.isEmpty()) {
+                backtrackingStack.add(new BacktrackingState(
+                    copyResolvent(resolvent),
+                    restOfRules // already a copy
+                ));
+            }
+
+            resolvent.addAll(rule.getBody());
         }
 
         // Resolvent is empty
         return true;
     }
 
-    Optional<Clause> findRuleWithHead(Term goal) {
-        return getGroundedRules().stream().filter(clause -> clause.getHead().equals(goal)).findFirst();
+    List<Clause> findRulesWithHead(Term goal) {
+        return getGroundedRules().stream().filter(clause -> clause.getHead().equals(goal)).collect(Collectors.toList());
     }
 
     Collection<Clause> getGroundedRules() {
@@ -104,5 +128,34 @@ public class Reasoner {
         }
 
         return result;
+    }
+
+    private Queue<Term> copyResolvent(Queue<Term> resolvent) {
+        final Iterator<Term> it = resolvent.iterator();
+        
+        final Queue<Term> result = new LinkedBlockingDeque<>();
+        while (it.hasNext()) {
+            result.add(it.next());
+        }
+
+        return result;
+    }
+
+    private static class BacktrackingState {
+        final Queue<Term> resolvent;
+        final List<Clause> restOfRules;
+
+        public BacktrackingState(Queue<Term> resolvent, List<Clause> restOfRules) {
+            this.resolvent = resolvent;
+            this.restOfRules = restOfRules;
+        }
+
+        public Queue<Term> getResolvent() {
+            return resolvent;
+        }
+
+        public List<Clause> getRestOfRules() {
+            return restOfRules;
+        }
     }
 }
