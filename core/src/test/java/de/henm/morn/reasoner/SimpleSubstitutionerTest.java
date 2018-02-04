@@ -12,13 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.henm.morn.core;
+package de.henm.morn.reasoner;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import de.henm.morn.core.Clause;
+import de.henm.morn.core.CompoundTermFactory;
+import de.henm.morn.core.Constant;
+import de.henm.morn.core.FreeVariable;
+import de.henm.morn.core.Functor;
+import de.henm.morn.core.Rule;
+import de.henm.morn.core.Term;
 
 /**
  * @author henm
@@ -28,8 +40,8 @@ public class SimpleSubstitutionerTest {
     private final SimpleSubstitutioner simpleSubstitutioner;
     private final CompoundTermFactory compoundTermFactory;
 
-    private Atom p;
-    private Atom q;
+    private Functor p;
+    private Functor q;
     private Constant c;
     private FreeVariable x;
     private Term pOfc;
@@ -44,8 +56,8 @@ public class SimpleSubstitutionerTest {
 
     @Before
     public void setUp() {
-        this.p = new Atom("p");
-        this.q = new Atom("q");
+        this.p = new Functor("p");
+        this.q = new Functor("q");
         this.c = new Constant("c");
         this.x = new FreeVariable("X");
         this.pOfc = compoundTermFactory.build(p, c);

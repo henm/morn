@@ -17,16 +17,12 @@ package de.henm.morn.core;
 /**
  * @author henm
  */
-final class Atom {
+public class Functor {
 
     private final String name;
 
-    public Atom(String name) {
+    public Functor(String name) {
         this.name = name;
     }
 
-    @Override
-    public String toString() {
-        return name;
-    }
 }

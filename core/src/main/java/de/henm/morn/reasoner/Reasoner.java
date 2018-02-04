@@ -12,43 +12,65 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.henm.morn.core;
+package de.henm.morn.reasoner;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
+import de.henm.morn.core.Clause;
+import de.henm.morn.core.CompoundTerm;
+import de.henm.morn.core.Term;
+import de.henm.morn.core.Constant;
+
 /**
+ * Simple reasoner.
+ *
  * @author henm
  */
-public class Program {
+public class Reasoner {
 
-    private final SimpleSubstitutioner simpleSubstitutioner;
     private final List<Clause> clauses;
+    private final SimpleSubstitutioner simpleSubstitutioner;
 
-    public Program() {
-        this.clauses = new ArrayList<>();
+    public Reasoner(List<Clause> clauses) {
+        this.clauses = clauses;
         this.simpleSubstitutioner = new SimpleSubstitutioner();
     }
 
-    public Program addFact(Fact fact) {
-        clauses.add(fact);
-        return this;
-    }
+    /**
+     * Answer a ground query for the program.
+     *
+     */
+    public boolean query(Term query) {
+        final Queue<Term> resolvent = new LinkedBlockingDeque<>();
+        resolvent.add(query);
 
-    public Program addFact(Term term) {
-        clauses.add(new Fact(term));
-        return this;
-    }
+        while (!resolvent.isEmpty()) {
 
-    public Program addRule(Clause clause) {
-        clauses.add(clause);
-        return this;
+            final Term goal = resolvent.poll();
+            // Find a rule with goal as head
+            final Optional<Clause> rule = this.findRuleWithHead(goal);
+            if (rule.isPresent()) {
+                resolvent.addAll(rule.get().getBody());
+            } else {
+                return false;
+            }
+        }
+
+        // Resolvent is empty
+        return true;
     }
 
     Optional<Clause> findRuleWithHead(Term goal) {
-        return getGroundedRules().stream().filter(clause -> clause.getHead().equals(goal))
-                .findFirst();
+        return getGroundedRules().stream().filter(clause -> clause.getHead().equals(goal)).findFirst();
     }
 
     Collection<Clause> getGroundedRules() {
@@ -59,9 +81,7 @@ public class Program {
                 final Collection<Term> constants = getAllUsedConstants();
                 return simpleSubstitutioner.getAllPossibleSubstitutions(clause, constants);
             }
-        }).flatMap(Collection::stream)
-                .distinct()
-                .collect(Collectors.toList());
+        }).flatMap(Collection::stream).distinct().collect(Collectors.toList());
     }
 
     Set<Term> getAllUsedConstants() {

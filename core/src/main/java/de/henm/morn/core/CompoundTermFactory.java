@@ -22,21 +22,21 @@ import java.util.List;
  *
  * @author henm
  */
-class CompoundTermFactory {
+public class CompoundTermFactory {
 
-    CompoundTerm build(Atom functor, Term term) {
+    public CompoundTerm build(Functor functor, Term term) {
         return new CompoundTerm1(functor, term);
     }
 
-    CompoundTerm build(Atom functor, Term term1, Term term2) {
+    public CompoundTerm build(Functor functor, Term term1, Term term2) {
         return new CompoundTerm2(functor, term1, term2);
     }
 
-    CompoundTerm build(Atom functor, Term term1, Term term2, Term term3) {
+    public CompoundTerm build(Functor functor, Term term1, Term term2, Term term3) {
         return new CompoundTerm3(functor, term1, term2, term3);
     }
 
-    CompoundTerm build(Atom functor, List<Term> terms) {
+    public CompoundTerm build(Functor functor, List<Term> terms) {
         final int numOfArgs = terms.size();
         switch (numOfArgs) {
             case 1:
@@ -50,7 +50,7 @@ class CompoundTermFactory {
         }
     }
 
-    CompoundTerm build(Atom functor, Term... terms) {
+    public CompoundTerm build(Functor functor, Term... terms) {
         return build(functor, Arrays.asList(terms));
     }
 }

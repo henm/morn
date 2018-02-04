@@ -12,11 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.henm.morn.core;
+package de.henm.morn.reasoner;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import de.henm.morn.core.Clause;
+import de.henm.morn.core.CompoundTerm;
+import de.henm.morn.core.CompoundTermFactory;
+import de.henm.morn.core.Fact;
+import de.henm.morn.core.FreeVariable;
+import de.henm.morn.core.Functor;
+import de.henm.morn.core.Rule;
+import de.henm.morn.core.Term;
+import de.henm.morn.core.Constant;
 
 /**
  * Get substitutions. The underlying algorithms are not very efficient.
@@ -44,7 +61,7 @@ public final class SimpleSubstitutioner {
         terms.addAll(clause.getBody());
 
         // Write rule as a term with functor '%'
-        final Term asTerm = compoundTermFactory.build(new Atom("%"), terms);
+        final Term asTerm = compoundTermFactory.build(new Functor("%"), terms);
         final Collection<Term> substituted = getAllPossibleSubstitutions(asTerm, toSubstitute);
 
         return substituted.stream().map(t -> {

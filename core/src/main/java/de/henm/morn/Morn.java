@@ -12,15 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.henm.morn.core;
+package de.henm.morn;
+
+import java.util.Optional;
+
+import de.henm.morn.core.Fact;
 
 /**
+ * 
  * @author henm
  */
-class Unification {
+public class Morn {
 
-    public void unify() {
-        
+    public static KnowledgeBase buildKB() {
+        return new KnowledgeBase();
+    }
+
+    public static Fact fact(Optional<?> val) {
+        // return new Fact(); // TODO
+        return null;
     }
 
 }

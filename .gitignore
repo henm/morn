@@ -41,3 +41,8 @@ buildNumber.properties
 # Intellij
 .idea
 morn.iml
+
+# VSCode Java Language Support
+.project
+.classpath
+.settings/

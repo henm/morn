@@ -22,7 +22,7 @@ import java.util.List;
  */
 public interface CompoundTerm extends Term {
 
-    Atom getFunctor();
+    Functor getFunctor();
 
     @Override
     default boolean isGround() {
