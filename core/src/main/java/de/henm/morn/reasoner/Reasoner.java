@@ -12,97 +12,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.henm.morn.core;
+package de.henm.morn.reasoner;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
+import de.henm.morn.core.Clause;
+import de.henm.morn.core.CompoundTerm;
+import de.henm.morn.core.Term;
+import de.henm.morn.core.Constant;
+
 /**
- * 
+ * Simple reasoner.
+ *
  * @author henm
  */
-public class KnowledgeBase {
+public class Reasoner {
 
-    private final SimpleSubstitutioner simpleSubstitutioner;
     private final List<Clause> clauses;
+    private final SimpleSubstitutioner simpleSubstitutioner;
 
-    public KnowledgeBase() {
-        this.clauses = new ArrayList<>();
+    public Reasoner(List<Clause> clauses) {
+        this.clauses = clauses;
         this.simpleSubstitutioner = new SimpleSubstitutioner();
     }
 
     /**
-     * @param fact The fact to add.
-     * @return This KnowledgeBase for builder pattern.
+     * Answer a ground query for the program.
+     *
      */
-    public KnowledgeBase addFact(Fact fact) {
-        this.clauses.add(fact);
-        return this;
-    }
+    public boolean query(Term query) {
+        final Queue<Term> resolvent = new LinkedBlockingDeque<>();
+        resolvent.add(query);
 
-    /**
-     * @param Term A term which is to be added as a fact.
-     * @return This KnowledgeBase for builder pattern.
-     */
-    public KnowledgeBase addFact(Term term) {
-        this.clauses.add(new Fact(term));
-        return this;
-    }
+        while (!resolvent.isEmpty()) {
 
-    /**
-     * @param facts Multiple facts to add.
-     * @return This KnowledgeBase for builder pattern.
-     */
-    public KnowledgeBase addFacts(Fact... facts) {
-        for (Fact fact : facts) {
-            this.addFact(fact);
+            final Term goal = resolvent.poll();
+            // Find a rule with goal as head
+            final Optional<Clause> rule = this.findRuleWithHead(goal);
+            if (rule.isPresent()) {
+                resolvent.addAll(rule.get().getBody());
+            } else {
+                return false;
+            }
         }
-        return this;
-    }
 
-    /**
-     * Add a rule to the knowledge base.
-     * 
-     * @param head The head of the rule.
-     * @param body The body of the rule.
-     * @return This KnowledgeBase for builder pattern.
-     */
-    public KnowledgeBase addRule(Term head, Term... body) {
-        this.clauses.add(new Rule(head, body));
-        return this;
-    }
-
-    /**
-     * Add a rule to the knowledge base.
-     * 
-     * @param rule The rule to add.
-     * @return This KnowledgeBase for builder pattern.
-     */
-    public KnowledgeBase addRule(Rule rule) {
-        this.clauses.add(rule);
-        return this;
-    }
-
-    /**
-     * Query this KnowledgeBase for satisfiability.
-     * 
-     * @return True iff this KnowledgeBase is satisfiable.
-     */
-    public boolean query() {
-        // TODO
-        return true;
-    }
-
-    public boolean query(FreeVariable... variables) {
-        // TODO
+        // Resolvent is empty
         return true;
     }
 

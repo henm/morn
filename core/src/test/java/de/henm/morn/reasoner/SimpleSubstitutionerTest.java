@@ -12,13 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.henm.morn.core;
+package de.henm.morn.reasoner;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import de.henm.morn.core.Clause;
+import de.henm.morn.core.CompoundTermFactory;
+import de.henm.morn.core.Constant;
+import de.henm.morn.core.FreeVariable;
+import de.henm.morn.core.Functor;
+import de.henm.morn.core.Rule;
+import de.henm.morn.core.Term;
 
 /**
  * @author henm

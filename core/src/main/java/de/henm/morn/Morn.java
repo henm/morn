@@ -14,9 +14,9 @@
  */
 package de.henm.morn;
 
-import de.henm.morn.core.KnowledgeBase;
-import de.henm.morn.core.Fact;
 import java.util.Optional;
+
+import de.henm.morn.core.Fact;
 
 /**
  * 
