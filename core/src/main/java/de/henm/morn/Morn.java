@@ -14,10 +14,6 @@
  */
 package de.henm.morn;
 
-import java.util.Optional;
-
-import de.henm.morn.core.Fact;
-
 /**
  * 
  * @author henm
@@ -26,11 +22,6 @@ public class Morn {
 
     public static KnowledgeBase buildKB() {
         return new KnowledgeBase();
-    }
-
-    public static Fact fact(Optional<?> val) {
-        // return new Fact(); // TODO
-        return null;
     }
 
 }

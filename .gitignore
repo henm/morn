@@ -46,3 +46,4 @@ morn.iml
 .project
 .classpath
 .settings/
+.vscode/
