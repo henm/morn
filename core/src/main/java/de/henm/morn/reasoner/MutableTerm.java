@@ -14,25 +14,34 @@
  */
 package de.henm.morn.reasoner;
 
-import java.util.Map;
-
 import de.henm.morn.core.FreeVariable;
 import de.henm.morn.core.Term;
 
 /**
- * Result of an unsuccessfull unification.
+ * A mutable Term. Useful for efficient unification.
  * 
  * @author henm
  */
-class NegativeUnificationResult implements UnificationResult {
+interface MutableTerm {
 
-    @Override
-    public boolean termsUnify() {
-        return false;
-    }
+    /**
+     * Check if a variable occurs in this term.
+     * 
+     * @param {x} Variable to check.
+     * @return True iff X does occur in this term.
+     */
+    boolean contains(MutableVariable x);
 
-    @Override
-    public Map<FreeVariable, Term> getSubstitution() {
-        return null;
-    }
+    /**
+     * Replace the occurences of a variable by the given term.
+     * 
+     * @param {x} The variable to replace.
+     * @param {replaceBy} The term to replace the variable by.
+     */
+    void replace(MutableVariable x, MutableTerm replaceBy);
+
+    /**
+     * @return The original term which was used to construct this mutable term.
+     */
+    Term getOriginalTerm();
 }

@@ -12,20 +12,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.henm.morn.core;
+package de.henm.morn.reasoner;
+
+import de.henm.morn.core.FreeVariable;
 
 /**
  * @author henm
  */
-public interface Term {
+class MutableVariable implements MutableTerm {
 
-    /**
-     * @return True iff term is ground.
-     */
-    boolean isGround();
+    private final FreeVariable variable;
 
-    default Rule entailed(Term... terms) {
-        return new Rule(this, terms);
+    public MutableVariable(FreeVariable variable) {
+        this.variable = variable;
     }
 
+    @Override
+    public boolean contains(MutableVariable x) {
+        return false;
+    }
+
+    @Override
+    public void replace(MutableVariable x, MutableTerm replaceBy) {
+        // NOP
+    }
+
+    @Override
+    public FreeVariable getOriginalTerm() {
+        return variable;
+    }
 }

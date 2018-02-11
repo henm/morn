@@ -30,15 +30,9 @@ class Substitution {
     // TODO Use references instead of hash
     final Map<FreeVariable, Term> substitution;
 
-    /**
-     * True iff the substitution-mapping is consistent, i.e. no variable is
-     * mapped to multiple, different terms.
-     */
-    boolean consistent;
 
     public Substitution() {
         this.substitution = new LinkedHashMap<>();
-        this.consistent = true;
     }
 
     /**
@@ -47,20 +41,8 @@ class Substitution {
      * @return This substitution for builder-pattern.
      */
     public Substitution add(FreeVariable var, Term term) {
-        final Term presentTerm = substitution.get(var);
-        if (presentTerm != null && !presentTerm.equals(term)) {
-            this.consistent = false;
-        }
-
         this.substitution.put(var, term);
         return this;
-    }
-
-    /**
-     * @return True iff substitution is consistent.
-     */
-    public boolean isConsistent() {
-        return consistent;
     }
 
     /**

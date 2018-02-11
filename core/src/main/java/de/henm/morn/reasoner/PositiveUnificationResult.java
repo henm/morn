@@ -19,6 +19,11 @@ import java.util.Map;
 import de.henm.morn.core.FreeVariable;
 import de.henm.morn.core.Term;
 
+/**
+ * Result of a successfull unification.
+ * 
+ * @author henm
+ */
 class PositiveUnificationResult implements UnificationResult {
     final Substitution substitution;
 
@@ -28,7 +33,7 @@ class PositiveUnificationResult implements UnificationResult {
 
     @Override
     public boolean termsUnify() {
-        return substitution.isConsistent();
+        return true;
     }
 
     @Override

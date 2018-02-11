@@ -30,9 +30,4 @@ public class SubstitutionTest {
         this.subject = new Substitution();
     }
 
-    @Test
-    public void emptySubstitutionShouldBeConsistent() {
-        Assert.assertTrue(subject.isConsistent());
-    }
-
 }
