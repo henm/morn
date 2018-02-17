@@ -28,4 +28,12 @@ public interface Term {
         return new Rule(this, terms);
     }
 
+    /**
+     * Check if a variable occurs in this term.
+     * 
+     * @param {x} Variable to check.
+     * @return True iff X does occur in this term.
+     */
+    boolean contains(FreeVariable x);
+
 }

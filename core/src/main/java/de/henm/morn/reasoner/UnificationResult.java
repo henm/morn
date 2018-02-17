@@ -14,18 +14,12 @@
  */
 package de.henm.morn.reasoner;
 
-import java.util.Map;
-
-import de.henm.morn.core.FreeVariable;
-import de.henm.morn.core.Term;
-
 /**
  * Result of an unification.
  * 
  * @author henm
  */
 public interface UnificationResult {
-
 
     /**
      * @return True iff the terms of the unification unify.
@@ -35,5 +29,5 @@ public interface UnificationResult {
     /**
      * @return Mapping of variables to terms of the unification.
      */
-    Map<FreeVariable, Term> getSubstitution();
+    Substitution getSubstitution();
 }

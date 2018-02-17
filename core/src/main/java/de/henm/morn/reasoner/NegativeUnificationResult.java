@@ -32,7 +32,7 @@ class NegativeUnificationResult implements UnificationResult {
     }
 
     @Override
-    public Map<FreeVariable, Term> getSubstitution() {
+    public Substitution getSubstitution() {
         return null;
     }
 }

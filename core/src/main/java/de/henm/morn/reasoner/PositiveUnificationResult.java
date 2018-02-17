@@ -37,7 +37,7 @@ class PositiveUnificationResult implements UnificationResult {
     }
 
     @Override
-    public Map<FreeVariable, Term> getSubstitution() {
-        return substitution.asMap();
+    public Substitution getSubstitution() {
+        return substitution;
     }
 }

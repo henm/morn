@@ -17,6 +17,7 @@ package de.henm.morn.reasoner;
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.henm.morn.core.CompoundTerm2;
 import de.henm.morn.core.CompoundTermFactory;
 import de.henm.morn.core.Constant;
 import de.henm.morn.core.FreeVariable;

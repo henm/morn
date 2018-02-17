@@ -15,9 +15,12 @@
 package de.henm.morn.reasoner;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import de.henm.morn.core.FreeVariable;
+import de.henm.morn.core.CompoundTerm;
+import de.henm.morn.core.CompoundTermFactory;
 import de.henm.morn.core.Term;
 
 /**
@@ -28,11 +31,12 @@ import de.henm.morn.core.Term;
 class Substitution {
 
     // TODO Use references instead of hash
-    final Map<FreeVariable, Term> substitution;
-
+    final Map<Term, Term> substitution;
+    final CompoundTermFactory compoundTermFactory;
 
     public Substitution() {
         this.substitution = new LinkedHashMap<>();
+        this.compoundTermFactory = new CompoundTermFactory();
     }
 
     /**
@@ -40,15 +44,48 @@ class Substitution {
      * @param {term} The term which is substituted for the variable.
      * @return This substitution for builder-pattern.
      */
-    public Substitution add(FreeVariable var, Term term) {
-        this.substitution.put(var, term);
+    public Substitution add(Term replace, Term with) {
+        this.substitution.put(replace, with);
         return this;
     }
 
+    public Term applyTo(Term t) {
+        if (t instanceof CompoundTerm) {
+            final Term substituteWith = get(t);
+            if (substituteWith != null) {
+                return substituteWith;
+            } else {
+                final CompoundTerm ct = (CompoundTerm) t;
+                final List<Term> replacedArguments = ct.getArguments().stream().map(arg -> applyTo(arg))
+                        .collect(Collectors.toList());
+                return compoundTermFactory.build(ct.getFunctor(), replacedArguments);
+            }
+
+        } else {
+            final Term substitutedWith = get(t);
+            if (substitutedWith != null) {
+                return substitutedWith;
+            } else {
+                return t;
+            }
+        }
+    }
+
     /**
-     * @return This substitution represented as a map from variable to term.
+     * @param {t} Variable to check.
+     * @return The term the variable is subsituted with or null if the variable
+     * is not substituted.
      */
-    public Map<FreeVariable, Term> asMap() {
-        return substitution;
+    public Term get(Term t) {
+        return substitution.get(t);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+        for (Map.Entry<Term, Term> entry : substitution.entrySet()) {
+            builder.append(String.format("%s: %s\n", entry.getKey(), entry.getValue()));
+        }
+        return builder.toString();
     }
 }

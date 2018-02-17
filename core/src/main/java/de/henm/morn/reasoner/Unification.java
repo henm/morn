@@ -15,11 +15,7 @@
 package de.henm.morn.reasoner;
 
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 import de.henm.morn.core.CompoundTerm;
 import de.henm.morn.core.Constant;
@@ -42,36 +38,40 @@ public class Unification {
      * @return UnificationResult containing the result of the unification.
      */
     public UnificationResult unify(Term term1, Term term2) {
+        return unify(term1, term2, new Substitution());
+    }
 
-        final Substitution substitution = new Substitution();
-
-        final Map<Term, MutableTerm> replaced = new LinkedHashMap<>();
-        final MutableTerm mt1 = termToMutableTerm(term1, replaced);
-        final MutableTerm mt2 = termToMutableTerm(term2, replaced);
+    /**
+     * Check if terms term1 and term2 unify.
+     * 
+     * @param {term1} First term to unify.
+     * @param {term2} Second term to unify.
+     * @param {substitution} The substitution to start with.
+     * @return UnificationResult containing the result of the unification.
+     */
+    public UnificationResult unify(Term term1, Term term2, Substitution substitution) {
 
         Stack<Terms> stack = new Stack<>();
-        stack.add(new Terms(mt1, mt2));
+        stack.add(new Terms(term1, term2));
 
         while (!stack.isEmpty()) {
-            final Terms terms = stack.pop();
+            final Terms terms = stack.pop().applySubstitution(substitution);
 
             if (terms.firstTermVariableCondition()) {
-                final MutableVariable variable = (MutableVariable) terms.getTerm1();
-                terms.replace(variable, terms.getTerm2());
-                substitution.add(variable.getOriginalTerm(), terms.getTerm2().getOriginalTerm());
+                final FreeVariable variable = (FreeVariable) terms.getTerm1();
+                substitution.add(variable, terms.getTerm2());
 
             } else if (terms.secondTermVariableCondition()) {
-                final MutableVariable variable = (MutableVariable) terms.getTerm2();
-                terms.replace(variable, terms.getTerm1());
-                substitution.add(variable.getOriginalTerm(), terms.getTerm1().getOriginalTerm());
+                final FreeVariable variable = (FreeVariable) terms.getTerm2();
+                substitution.add(variable, terms.getTerm1());
 
             } else if (terms.sameConstants()) {
                 continue;
 
             } else if (terms.compoundTermCondition()) {
-                final Iterator<MutableTerm> arguments1 = ((MutableCompoundTerm) terms.getTerm1()).getArguments()
+                final Iterator<Term> arguments1 = ((CompoundTerm) terms.getTerm1()).getArguments()
                         .iterator();
-                final Iterator<MutableTerm> arguments2 = ((MutableCompoundTerm) terms.getTerm2()).getArguments()
+                final Iterator<Term> arguments2 = ((CompoundTerm) terms.getTerm2()).getArguments()
                         .iterator();
 
                 while (arguments1.hasNext()) {
@@ -86,72 +86,45 @@ public class Unification {
         return new PositiveUnificationResult(substitution);
     }
 
-    private MutableTerm termToMutableTerm(Term term, Map<Term, MutableTerm> replaced) {
-        if (replaced.containsKey(term)) {
-            return replaced.get(term);
-        }
-
-        if (term instanceof FreeVariable) {
-            final MutableTerm mt = new MutableVariable((FreeVariable) term);
-            replaced.put(term, mt);
-            return mt;
-
-        } else if (term instanceof Constant) {
-            final MutableTerm mt = new MutableConstant((Constant) term);
-            replaced.put(term, mt);
-            return mt;
-
-        } else if (term instanceof CompoundTerm) {
-            final CompoundTerm ct = (CompoundTerm) term;
-            final List<MutableTerm> arguments = ct.getArguments().stream().map(t -> this.termToMutableTerm(t, replaced))
-                    .collect(Collectors.toList());
-
-            final MutableTerm mt = new MutableCompoundTerm(ct, arguments);
-            replaced.put(term, mt);
-            return mt;
-            
-        } else {
-            throw new IllegalArgumentException(String.format("Unkown Term-Type of term: %s", term));
-        }
-    }
-
     private static class Terms {
-        private final MutableTerm term1;
-        private final MutableTerm term2;
+        private Term term1;
+        private Term term2;
 
-        public Terms(MutableTerm term1, MutableTerm term2) {
+        public Terms(Term term1, Term term2) {
             this.term1 = term1;
             this.term2 = term2;
         }
 
-        public MutableTerm getTerm1() {
+        public Term getTerm1() {
             return term1;
         }
 
-        public MutableTerm getTerm2() {
+        public Term getTerm2() {
             return term2;
         }
 
         public boolean firstTermVariableCondition() {
-            return term1 instanceof MutableVariable && !term2.contains((MutableVariable) term1);
+            return term1 instanceof FreeVariable && !term2.contains((FreeVariable) term1);
         }
 
         public boolean secondTermVariableCondition() {
-            return term2 instanceof MutableVariable && !term1.contains((MutableVariable) term2);
+            return term2 instanceof FreeVariable && !term1.contains((FreeVariable) term2);
         }
 
         public boolean sameConstants() {
-            return term1 instanceof MutableConstant && term1 instanceof MutableConstant && term1 == term2;
+            return term1 instanceof Constant && term1 instanceof Constant && term1 == term2;
         }
 
         public boolean compoundTermCondition() {
-            return term1 instanceof MutableCompoundTerm && term2 instanceof MutableCompoundTerm
-                    && ((MutableCompoundTerm) term1).getFunctor() == ((MutableCompoundTerm) term2).getFunctor();
+            return term1 instanceof CompoundTerm && term2 instanceof CompoundTerm
+                    && ((CompoundTerm) term1).getFunctor() == ((CompoundTerm) term2).getFunctor();
         }
 
-        public void replace(MutableVariable x, MutableTerm replaceBy) {
-            term1.replace(x, replaceBy);
-            term2.replace(x, replaceBy);
+        public Terms applySubstitution(Substitution substutition) {
+            term1 = substutition.applyTo(term1);
+            term2 = substutition.applyTo(term2);
+
+            return this;
         }
     }
 }

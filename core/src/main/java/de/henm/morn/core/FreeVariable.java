@@ -36,4 +36,9 @@ public class FreeVariable implements Term {
     public String toString() {
         return name;
     }
+
+    @Override
+    public boolean contains(FreeVariable x) {
+        return false;
+    }
 }

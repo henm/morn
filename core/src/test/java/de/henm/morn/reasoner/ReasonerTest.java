@@ -100,34 +100,4 @@ public class ReasonerTest {
 
         Assert.assertTrue(reasoner.query(ctFactory.build(son, lot, haran)));
     }
-
-    @Test
-    public void getAllUsedConstantsShouldReturnAllConstants() {
-        final List<Clause> clauses = new ArrayList<>();
-        clauses.add(new Fact(c));
-        clauses.add(new Fact(ctFactory.build(p, b)));
-        clauses.add(new Rule(ctFactory.build(p, b), ctFactory.build(p, c)));
-
-        final Reasoner reasoner = new Reasoner(clauses);
-        final Set<Term> usedConstants = reasoner.getAllUsedConstants();
-
-        Assert.assertEquals(2, usedConstants.size());
-        Assert.assertTrue(usedConstants.contains(b));
-        Assert.assertTrue(usedConstants.contains(c));
-    }
-
-    @Test
-    public void getGroundedRulesShouldNotContainAnyRuleWithFreeVariables() {
-        final List<Clause> clauses = new ArrayList<>();
-        final Fact groundenFact = new Fact(ctFactory.build(p, a));
-
-        clauses.add(groundenFact);
-        clauses.add(new Fact(ctFactory.build(p, x)));
-
-        final Reasoner reasoner = new Reasoner(clauses);
-        final Collection<Clause> groundedRules = reasoner.getGroundedRules();
-
-        Assert.assertEquals(1, groundedRules.size());
-        Assert.assertTrue(groundedRules.contains(groundenFact));
-    }
 }
