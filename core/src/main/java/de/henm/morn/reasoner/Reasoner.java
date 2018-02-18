@@ -15,7 +15,9 @@
 package de.henm.morn.reasoner;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import de.henm.morn.core.Clause;
 import de.henm.morn.core.Term;
@@ -41,26 +43,38 @@ public class Reasoner {
      * Answer a query for program.
      * 
      * @param {goal} The goal to query.
-     * @return True iff the goal can be deduced from the program.
+     * @return Optional containing a possible substitution iff the goal can be
+     * deduced from the program.
      */
-    public boolean query(Term goal) {
+    public Optional<Substitution> query(Term goal) {
         final List<Tuple2<Clause, PositiveUnificationResult>> clauses = getPossibleClauses(goal);
 
-        return clauses.stream().anyMatch(choose -> {
-            final Clause clause = choose._1;
-            final Substitution substitution = choose._2.getSubstitution();
-            
-            return clause.getBody().stream().allMatch(t -> {
-                final Term tWithSubstitution = substitution.apply(t);
-                return query(tWithSubstitution);
-            });
-        });
+        // This stream contains the outcomes of all the possible clauses
+        final Stream<Optional<Substitution>> results = clauses.stream()
+                .map(r -> getQueryResultForUnificationResult(r._1, r._2));
+
+        // Only the successfull branches are relevant
+        return results.filter(branch -> branch.isPresent()).map(branch -> branch.get()).findFirst();
     }
 
     private List<Tuple2<Clause, PositiveUnificationResult>> getPossibleClauses(Term a) {
-        return clauses.stream()
-                .map(clause -> Tuple.of(clause, unification.unify(a, clause.getHead())))
+        return clauses.stream().map(clause -> Tuple.of(clause, unification.unify(a, clause.getHead())))
                 .filter(tuple -> tuple._2.termsUnify())
                 .map(tuple -> Tuple.of(tuple._1, (PositiveUnificationResult) tuple._2)).collect(Collectors.toList());
+    }
+
+    private Optional<Substitution> getQueryResultForUnificationResult(Clause clause,
+            PositiveUnificationResult unificationResult) {
+        return clause.getBody().stream().map(term -> unificationResult.getSubstitution().apply(term))
+                // Check if the term (with substitution applied) is satisfiable
+                .map(this::query)
+                // Reduced is called to ensure all terms are true in
+                // relation to the program
+                // If there are no terms to check the result is success
+                .reduce(Optional.of(new Substitution()), this::mergeSubstitutions);
+    }
+
+    private Optional<Substitution> mergeSubstitutions(Optional<Substitution> s1, Optional<Substitution> s2) {
+        return s1.flatMap((s1Present) -> s2.map(s2Present -> s1Present.merge(s2Present)));
     }
 }

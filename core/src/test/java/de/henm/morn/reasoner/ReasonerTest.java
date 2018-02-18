@@ -80,18 +80,18 @@ public class ReasonerTest {
 
         final Reasoner reasoner = new Reasoner(clauses);
 
-        Assert.assertTrue(reasoner.query(a));
+        Assert.assertTrue(reasoner.query(a).isPresent());
     }
 
     @Test
     public void lotIsSonOfHaran() {
-        Assert.assertTrue(familyReasoner.query(ctFactory.build(son, lot, haran)));
+        Assert.assertTrue(familyReasoner.query(ctFactory.build(son, lot, haran)).isPresent());
     }
 
     @Test
     public void reasonerShouldHandleQueriesWithVariables() {
         final Variable x = new Variable("X");
-        Assert.assertTrue(familyReasoner.query(ctFactory.build(son, x, haran)));
-        Assert.assertFalse(familyReasoner.query(ctFactory.build(son, x, x)));
+        Assert.assertTrue(familyReasoner.query(ctFactory.build(son, x, haran)).isPresent());
+        Assert.assertFalse(familyReasoner.query(ctFactory.build(son, x, x)).isPresent());
     }
 }
