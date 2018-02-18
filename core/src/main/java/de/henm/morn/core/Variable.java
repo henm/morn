@@ -14,25 +14,31 @@
  */
 package de.henm.morn.core;
 
-import java.util.List;
-
 /**
- *
+ * A free variable.
+ * 
  * @author henm
  */
-public interface CompoundTerm extends Term {
+public class Variable implements Term {
 
-    Functor getFunctor();
+    private final String name;
 
-    @Override
-    default boolean isGround() {
-        return getArguments().stream().allMatch(t -> t.isGround());
+    public Variable(String name) {
+        this.name = name;
     }
 
-    List<Term> getArguments();
+    @Override
+    public boolean isGround() {
+        return false;
+    }
 
     @Override
-    default boolean contains(Variable x) {
-        return getArguments().stream().anyMatch(t -> t.equals(x) || t.contains(x));
+    public String toString() {
+        return name;
+    }
+
+    @Override
+    public boolean contains(Variable x) {
+        return false;
     }
 }

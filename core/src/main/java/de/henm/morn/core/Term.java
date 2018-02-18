@@ -19,10 +19,21 @@ package de.henm.morn.core;
  */
 public interface Term {
 
+    /**
+     * @return True iff term is ground.
+     */
     boolean isGround();
 
     default Rule entailed(Term... terms) {
         return new Rule(this, terms);
     }
+
+    /**
+     * Check if a variable occurs in this term.
+     * 
+     * @param {x} Variable to check.
+     * @return True iff X does occur in this term.
+     */
+    boolean contains(Variable x);
 
 }

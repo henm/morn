@@ -12,28 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.henm.morn.core;
+package de.henm.morn.reasoner;
 
 /**
- * A free variable.
+ * Result of an unification.
  * 
  * @author henm
  */
-public class FreeVariable implements Term {
+public interface UnificationResult {
 
-    private final String name;
+    /**
+     * @return True iff the terms of the unification unify.
+     */
+    boolean termsUnify();
 
-    public FreeVariable(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public boolean isGround() {
-        return false;
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
+    /**
+     * @return Mapping of variables to terms of the unification.
+     */
+    Substitution getSubstitution();
 }

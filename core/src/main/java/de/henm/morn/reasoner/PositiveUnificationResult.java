@@ -12,27 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.henm.morn.core;
-
-import java.util.List;
+package de.henm.morn.reasoner;
 
 /**
- *
+ * Result of a successfull unification.
+ * 
  * @author henm
  */
-public interface CompoundTerm extends Term {
+class PositiveUnificationResult implements UnificationResult {
+    final Substitution substitution;
 
-    Functor getFunctor();
-
-    @Override
-    default boolean isGround() {
-        return getArguments().stream().allMatch(t -> t.isGround());
+    PositiveUnificationResult(Substitution substitution) {
+        this.substitution = substitution;
     }
 
-    List<Term> getArguments();
+    @Override
+    public boolean termsUnify() {
+        return true;
+    }
 
     @Override
-    default boolean contains(Variable x) {
-        return getArguments().stream().anyMatch(t -> t.equals(x) || t.contains(x));
+    public Substitution getSubstitution() {
+        return substitution;
     }
 }

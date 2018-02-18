@@ -36,4 +36,9 @@ public class Constant implements Term {
     public String toString() {
         return name;
     }
+
+    @Override
+    public boolean contains(Variable x) {
+        return false;
+    }
 }
