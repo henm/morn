@@ -48,11 +48,6 @@ public class Reasoner {
             final Clause clause = choose._1;
             final Substitution substitution = choose._2.getSubstitution();
             
-            // Die Substitution muss ich gar nicht durchreichen, oder?
-            // Es reicht wenn ich die auf die neu hinzuzufügenden Terme anwende
-            // Aber wie behalte ich dabei die Vergleiche per Referenz?
-            // Ist das überhaupt realistisch bei compoundTerms?
-
             return clause.getBody().stream().allMatch(t -> {
                 final Term tWithSubstitution = substitution.apply(t);
                 return query(tWithSubstitution);
