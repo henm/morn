@@ -25,7 +25,7 @@ import de.henm.morn.core.CompoundTermFactory;
 import de.henm.morn.core.Term;
 
 /**
- * A mapping from terms to terms used for unification.
+ * A mapping from terms to terms used for unification and query results.
  * 
  * @author henm
  */
@@ -39,11 +39,16 @@ class Substitution {
         this.compoundTermFactory = new CompoundTermFactory();
     }
 
+    private Substitution(Map<Term, Term> substitution) {
+        this();
+        this.substitution.putAll(substitution);
+    }
+
     /**
-     * @param {replace} Variable to add a substitution for.
-     * @param {with} The term which is substituted for the variable.
-     * @return This substitution for builder-pattern.
-     */
+    * @param {replace} Variable to add a substitution for.
+    * @param {with} The term which is substituted for the variable.
+    * @return This substitution for builder-pattern.
+    */
     public Substitution add(Term replace, Term with) {
         this.substitution.put(replace, with);
         return this;
@@ -87,6 +92,41 @@ class Substitution {
      */
     public Optional<Term> get(Term t) {
         return Optional.ofNullable(substitution.get(t));
+    }
+
+    /**
+     * @param {t} Term to check.
+     * @return True iff there is a mapping for the given term.
+     */
+    public boolean containsMappingFor(Term t) {
+        return get(t).isPresent();
+    }
+
+    /**
+     * Combine the mappings of this substitution with another substitution.
+     * 
+     * @param {otherSubstitution} The other substitution.
+     * @return A new substitution containing the mappings from this and the
+     * other substitution.
+     * @throws IllegalArgumentException Thrown when there are mappings for the
+     * same term in both substitutions.
+     */
+    public Substitution merge(Substitution otherSubstitution) {
+        final Map<Term, Term> thisMap = substitution;
+        final Map<Term, Term> otherMap = otherSubstitution.substitution;
+
+        final Substitution result = new Substitution(thisMap);
+        for (Map.Entry<Term, Term> entry : otherMap.entrySet()) {
+            if (this.containsMappingFor(entry.getKey())) {
+                throw new IllegalArgumentException(String.format(
+                        "Merging of substitutions '%s' and '%s' not possible: Term '%s' is mapped multiple times", this,
+                        otherSubstitution, entry.getKey()));
+            }
+        }
+
+        result.substitution.putAll(otherMap);
+
+        return result;
     }
 
     @Override

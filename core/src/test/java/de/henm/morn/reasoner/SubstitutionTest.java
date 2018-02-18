@@ -30,6 +30,11 @@ import de.henm.morn.core.Variable;
  */
 public class SubstitutionTest {
 
+    final Constant a = new Constant("a");
+    final Constant b = new Constant("b");
+    final Variable x = new Variable("X");
+    final Variable y = new Variable("Y");
+
     final CompoundTermFactory ctFactory;
 
     Substitution substitution;
@@ -45,31 +50,22 @@ public class SubstitutionTest {
 
     @Test
     public void applyShouldReplaceVariables() {
-        final Variable x = new Variable("X");
-        final Variable y = new Variable("Y");
-
         substitution.add(x, y);
         Assert.assertEquals(y, substitution.apply(x));
     }
 
     @Test
     public void applyShouldReplaceConstants() {
-        final Constant a = new Constant("a");
-        final Constant b = new Constant("b");
-
         substitution.add(a, b);
         Assert.assertEquals(b, substitution.apply(a));
     }
 
     @Test
     public void applyShouldReplaceCompoundTerms() {
-        final Variable x = new Variable("X");
-        final Constant b = new Constant("b");
         final Functor f = new Functor("f");
         final CompoundTerm fbx = ctFactory.build(f, b, x);
 
         final Functor g = new Functor("g");
-        final Variable y = new Variable("y");
         final CompoundTerm gy = ctFactory.build(g, y);
 
         substitution.add(x, gy);
@@ -81,5 +77,28 @@ public class SubstitutionTest {
         Assert.assertEquals(2, ct.getArguments().size());
         Assert.assertEquals(b, ct.getArguments().get(0));
         Assert.assertEquals(gy, ct.getArguments().get(1));
+    }
+
+    @Test
+    public void resultOfMergeShouldContainAllMappings() {
+        substitution.add(a, x);
+
+        final Substitution otherSubstitution = new Substitution();
+        otherSubstitution.add(b, y);
+
+        final Substitution mergedSubstitution = substitution.merge(otherSubstitution);
+
+        Assert.assertEquals(x, mergedSubstitution.get(a).get());
+        Assert.assertEquals(y, mergedSubstitution.get(b).get());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void mergeShouldThrowExceptionIfTermIsMappedInBothArguments() {
+        substitution.add(a, x);
+
+        final Substitution otherSubstitution = new Substitution();
+        otherSubstitution.add(a, y);
+
+        substitution.merge(otherSubstitution);
     }
 }

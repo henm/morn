@@ -95,6 +95,6 @@ public class KnowledgeBase {
      */
     public boolean query(Term term) {
         final Reasoner reasoner = new Reasoner(this.clauses);
-        return reasoner.query(term);
+        return reasoner.query(term).isPresent();
     }
 }
