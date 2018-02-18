@@ -39,7 +39,9 @@ public class Reasoner {
 
     /**
      * Answer a query for program.
-     *
+     * 
+     * @param {goal} The goal to query.
+     * @return True iff the goal can be deduced from the program.
      */
     public boolean query(Term goal) {
         final List<Tuple2<Clause, PositiveUnificationResult>> clauses = getPossibleClauses(goal);

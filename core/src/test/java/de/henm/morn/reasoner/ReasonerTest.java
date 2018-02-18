@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import de.henm.morn.core.Clause;
@@ -30,34 +31,28 @@ import de.henm.morn.core.Variable;
 
 public class ReasonerTest {
 
-    @Test
-    public void simpleFactsShouldBeDeduced() {
-        final Term a = new Constant("a");
-        final List<Clause> clauses = new ArrayList<>();
-        clauses.add(new Fact(a));
+    final Constant abraham = new Constant("abraham");
+    final Constant isaac = new Constant("isaac");
+    final Constant haran = new Constant("haran");
+    final Constant lot = new Constant("lot");
+    final Constant milcah = new Constant("milcah");
+    final Constant yiscah = new Constant("yiscah");
 
-        final Reasoner reasoner = new Reasoner(clauses);
+    final Functor father = new Functor("father");
+    final Functor male = new Functor("male");
+    final Functor female = new Functor("female");
+    final Functor son = new Functor("son");
+    final Functor daughter = new Functor("daughter");
 
-        Assert.assertTrue(reasoner.query(a));
+    private CompoundTermFactory ctFactory;
+    private Reasoner familyReasoner;
+
+    public ReasonerTest() {
+        this.ctFactory = new CompoundTermFactory();
     }
 
-    @Test
-    public void lotIsSonOfHaran() {
-        final Constant abraham = new Constant("abraham");
-        final Constant isaac = new Constant("isaac");
-        final Constant haran = new Constant("haran");
-        final Constant lot = new Constant("lot");
-        final Constant milcah = new Constant("milcah");
-        final Constant yiscah = new Constant("yiscah");
-
-        final Functor father = new Functor("father");
-        final Functor male = new Functor("male");
-        final Functor female = new Functor("female");
-        final Functor son = new Functor("son");
-        final Functor daughter = new Functor("daughter");
-
-        final CompoundTermFactory ctFactory = new CompoundTermFactory();
-
+    @Before
+    public void setup() {
         final List<Clause> clauses = new ArrayList<>();
         clauses.add(new Fact(ctFactory.build(father, abraham, isaac)));
         clauses.add(new Fact(ctFactory.build(male, isaac)));
@@ -74,8 +69,29 @@ public class ReasonerTest {
         clauses.add(
                 ctFactory.build(daughter, x, y).entailed(ctFactory.build(father, y, x), ctFactory.build(female, x)));
 
+        this.familyReasoner = new Reasoner(clauses);
+    }
+
+    @Test
+    public void simpleFactsShouldBeDeduced() {
+        final Term a = new Constant("a");
+        final List<Clause> clauses = new ArrayList<>();
+        clauses.add(new Fact(a));
+
         final Reasoner reasoner = new Reasoner(clauses);
 
-        Assert.assertTrue(reasoner.query(ctFactory.build(son, lot, haran)));
+        Assert.assertTrue(reasoner.query(a));
+    }
+
+    @Test
+    public void lotIsSonOfHaran() {
+        Assert.assertTrue(familyReasoner.query(ctFactory.build(son, lot, haran)));
+    }
+
+    @Test
+    public void reasonerShouldHandleQueriesWithVariables() {
+        final Variable x = new Variable("X");
+        Assert.assertTrue(familyReasoner.query(ctFactory.build(son, x, haran)));
+        Assert.assertFalse(familyReasoner.query(ctFactory.build(son, x, x)));
     }
 }
