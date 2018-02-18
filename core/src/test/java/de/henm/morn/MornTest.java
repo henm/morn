@@ -14,12 +14,12 @@
  */
 package de.henm.morn;
 
-import org.junit.Test;
 import org.junit.Assert;
+import org.junit.Test;
 
-import de.henm.morn.core.Functor;
 import de.henm.morn.core.Constant;
-import de.henm.morn.core.FreeVariable;
+import de.henm.morn.core.Functor;
+import de.henm.morn.core.Variable;
 
 public class MornTest {
 
@@ -43,9 +43,9 @@ public class MornTest {
         final Constant yiscah = new Constant("yiscah");
         final Constant sarah = new Constant("sarah");
 
-        final FreeVariable x = new FreeVariable("X");
-        final FreeVariable y = new FreeVariable("y");
-        final FreeVariable z = new FreeVariable("z");
+        final Variable x = new Variable("X");
+        final Variable y = new Variable("y");
+        final Variable z = new Variable("z");
 
         final KnowledgeBase kb = Morn.buildKB()
             .addFact(father.apply(terach, abraham))

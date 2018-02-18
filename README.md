@@ -23,9 +23,9 @@ final Constant milcah = new Constant("milcah");
 final Constant yiscah = new Constant("yiscah");
 final Constant sarah = new Constant("sarah");
 
-final FreeVariable x = new FreeVariable("X");
-final FreeVariable y = new FreeVariable("y");
-final FreeVariable z = new FreeVariable("z");
+final Variable x = new Variable("X");
+final Variable y = new Variable("y");
+final Variable z = new Variable("z");
 
 final KnowledgeBase kb = Morn.buildKB()
     .addFact(father.apply(terach, abraham))

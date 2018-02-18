@@ -19,8 +19,8 @@ import java.util.Stack;
 
 import de.henm.morn.core.CompoundTerm;
 import de.henm.morn.core.Constant;
-import de.henm.morn.core.FreeVariable;
 import de.henm.morn.core.Term;
+import de.henm.morn.core.Variable;
 
 /**
  * Unification-Algorithm based on the algorithm given in "The Art of Prolog"
@@ -58,11 +58,11 @@ public class Unification {
             final Terms terms = stack.pop().applySubstitution(substitution);
 
             if (terms.firstTermVariableCondition()) {
-                final FreeVariable variable = (FreeVariable) terms.getTerm1();
+                final Variable variable = (Variable) terms.getTerm1();
                 substitution.add(variable, terms.getTerm2());
 
             } else if (terms.secondTermVariableCondition()) {
-                final FreeVariable variable = (FreeVariable) terms.getTerm2();
+                final Variable variable = (Variable) terms.getTerm2();
                 substitution.add(variable, terms.getTerm1());
 
             } else if (terms.sameConstants()) {
@@ -104,11 +104,11 @@ public class Unification {
         }
 
         public boolean firstTermVariableCondition() {
-            return term1 instanceof FreeVariable && !term2.contains((FreeVariable) term1);
+            return term1 instanceof Variable && !term2.contains((Variable) term1);
         }
 
         public boolean secondTermVariableCondition() {
-            return term2 instanceof FreeVariable && !term1.contains((FreeVariable) term2);
+            return term2 instanceof Variable && !term1.contains((Variable) term2);
         }
 
         public boolean sameConstants() {
@@ -121,8 +121,8 @@ public class Unification {
         }
 
         public Terms applySubstitution(Substitution substutition) {
-            term1 = substutition.applyTo(term1);
-            term2 = substutition.applyTo(term2);
+            term1 = substutition.apply(term1);
+            term2 = substutition.apply(term2);
 
             return this;
         }

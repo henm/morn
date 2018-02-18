@@ -14,11 +14,6 @@
  */
 package de.henm.morn.reasoner;
 
-import java.util.Map;
-
-import de.henm.morn.core.FreeVariable;
-import de.henm.morn.core.Term;
-
 /**
  * Result of an unsuccessfull unification.
  * 

@@ -32,7 +32,7 @@ public interface CompoundTerm extends Term {
     List<Term> getArguments();
 
     @Override
-    default boolean contains(FreeVariable x) {
+    default boolean contains(Variable x) {
         return getArguments().stream().anyMatch(t -> t.equals(x) || t.contains(x));
     }
 }

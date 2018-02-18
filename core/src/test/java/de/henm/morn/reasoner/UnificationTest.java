@@ -17,12 +17,11 @@ package de.henm.morn.reasoner;
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.henm.morn.core.CompoundTerm2;
 import de.henm.morn.core.CompoundTermFactory;
 import de.henm.morn.core.Constant;
-import de.henm.morn.core.FreeVariable;
 import de.henm.morn.core.Functor;
 import de.henm.morn.core.Term;
+import de.henm.morn.core.Variable;
 
 /**
  * @author henm
@@ -49,17 +48,17 @@ public class UnificationTest {
     @Test
     public void unificationShouldHandleVariables() {
         final Constant a = new Constant("a");
-        final FreeVariable x = new FreeVariable("X");
+        final Variable x = new Variable("X");
 
         Assert.assertTrue(unification.unify(x, x).termsUnify());
 
         final UnificationResult resultax = unification.unify(a, x);
         Assert.assertTrue(resultax.termsUnify());
-        Assert.assertEquals(resultax.getSubstitution().get(x), a);
+        Assert.assertEquals(resultax.getSubstitution().get(x).get(), a);
 
         final UnificationResult resultxa = unification.unify(x, a);
         Assert.assertTrue(resultxa.termsUnify());
-        Assert.assertEquals(resultxa.getSubstitution().get(x), a);
+        Assert.assertEquals(resultxa.getSubstitution().get(x).get(), a);
     }
 
     @Test
@@ -68,7 +67,7 @@ public class UnificationTest {
         final Functor g = new Functor("g");
         final Constant a = new Constant("a");
         final Constant b = new Constant("b");
-        final FreeVariable x = new FreeVariable("X");
+        final Variable x = new Variable("X");
 
         final Term fab = compoundTermFactory.build(f, a, b);
         Assert.assertTrue(unification.unify(fab, fab).termsUnify());
@@ -76,7 +75,7 @@ public class UnificationTest {
         final Term fax = compoundTermFactory.build(f, a, x);
         final UnificationResult fabfax = unification.unify(fab, fax);
         Assert.assertTrue(fabfax.termsUnify());
-        Assert.assertEquals(fabfax.getSubstitution().get(x), b);
+        Assert.assertEquals(fabfax.getSubstitution().get(x).get(), b);
 
         final UnificationResult faxfax = unification.unify(fax, fax);
         Assert.assertTrue(faxfax.termsUnify());

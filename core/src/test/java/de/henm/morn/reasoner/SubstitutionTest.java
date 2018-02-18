@@ -18,16 +18,68 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.henm.morn.core.CompoundTerm;
+import de.henm.morn.core.CompoundTermFactory;
+import de.henm.morn.core.Constant;
+import de.henm.morn.core.Functor;
+import de.henm.morn.core.Term;
+import de.henm.morn.core.Variable;
+
 /**
  * @author henm
  */
 public class SubstitutionTest {
 
-    Substitution subject;
+    final CompoundTermFactory ctFactory;
+
+    Substitution substitution;
+
+    public SubstitutionTest() {
+        this.ctFactory = new CompoundTermFactory();
+    }
 
     @Before
     public void setUp() {
-        this.subject = new Substitution();
+        this.substitution = new Substitution();
     }
 
+    @Test
+    public void applyShouldReplaceVariables() {
+        final Variable x = new Variable("X");
+        final Variable y = new Variable("Y");
+
+        substitution.add(x, y);
+        Assert.assertEquals(y, substitution.apply(x));
+    }
+
+    @Test
+    public void applyShouldReplaceConstants() {
+        final Constant a = new Constant("a");
+        final Constant b = new Constant("b");
+
+        substitution.add(a, b);
+        Assert.assertEquals(b, substitution.apply(a));
+    }
+
+    @Test
+    public void applyShouldReplaceCompoundTerms() {
+        final Variable x = new Variable("X");
+        final Constant b = new Constant("b");
+        final Functor f = new Functor("f");
+        final CompoundTerm fbx = ctFactory.build(f, b, x);
+
+        final Functor g = new Functor("g");
+        final Variable y = new Variable("y");
+        final CompoundTerm gy = ctFactory.build(g, y);
+
+        substitution.add(x, gy);
+        
+        final Term toCheck = substitution.apply(fbx);
+        Assert.assertTrue(toCheck instanceof CompoundTerm);
+        final CompoundTerm ct = (CompoundTerm) toCheck;
+        Assert.assertEquals(f, ct.getFunctor());
+        Assert.assertEquals(2, ct.getArguments().size());
+        Assert.assertEquals(b, ct.getArguments().get(0));
+        Assert.assertEquals(gy, ct.getArguments().get(1));
+    }
 }

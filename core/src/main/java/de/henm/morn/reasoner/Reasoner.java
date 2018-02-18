@@ -15,8 +15,6 @@
 package de.henm.morn.reasoner;
 
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 import de.henm.morn.core.Clause;
@@ -56,7 +54,7 @@ public class Reasoner {
             // Ist das überhaupt realistisch bei compoundTerms?
 
             return clause.getBody().stream().allMatch(t -> {
-                final Term tWithSubstitution = substitution.applyTo(t);
+                final Term tWithSubstitution = substitution.apply(t);
                 return query(tWithSubstitution);
             });
         });

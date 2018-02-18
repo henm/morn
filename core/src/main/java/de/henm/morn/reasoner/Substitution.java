@@ -17,6 +17,7 @@ package de.henm.morn.reasoner;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import de.henm.morn.core.CompoundTerm;
@@ -24,13 +25,12 @@ import de.henm.morn.core.CompoundTermFactory;
 import de.henm.morn.core.Term;
 
 /**
- * Represents a mapping from variables to terms used for unification.
+ * A mapping from terms to terms used for unification.
  * 
  * @author henm
  */
 class Substitution {
 
-    // TODO Use references instead of hash
     final Map<Term, Term> substitution;
     final CompoundTermFactory compoundTermFactory;
 
@@ -40,8 +40,8 @@ class Substitution {
     }
 
     /**
-     * @param {var} Variable to add a substitution for.
-     * @param {term} The term which is substituted for the variable.
+     * @param {replace} Variable to add a substitution for.
+     * @param {with} The term which is substituted for the variable.
      * @return This substitution for builder-pattern.
      */
     public Substitution add(Term replace, Term with) {
@@ -49,22 +49,29 @@ class Substitution {
         return this;
     }
 
-    public Term applyTo(Term t) {
+    /**
+     * Build a new term, replacing all occurrences of terms according to this
+     * substitution.
+     * 
+     * @param {t} The term apply the substitution to.
+     * @return A new term with all occurrences replaced.
+     */
+    public Term apply(Term t) {
         if (t instanceof CompoundTerm) {
-            final Term substituteWith = get(t);
-            if (substituteWith != null) {
-                return substituteWith;
+            final Optional<Term> substituteWith = get(t);
+            if (substituteWith.isPresent()) {
+                return substituteWith.get();
             } else {
                 final CompoundTerm ct = (CompoundTerm) t;
-                final List<Term> replacedArguments = ct.getArguments().stream().map(arg -> applyTo(arg))
+                final List<Term> replacedArguments = ct.getArguments().stream().map(arg -> apply(arg))
                         .collect(Collectors.toList());
                 return compoundTermFactory.build(ct.getFunctor(), replacedArguments);
             }
 
         } else {
-            final Term substitutedWith = get(t);
-            if (substitutedWith != null) {
-                return substitutedWith;
+            final Optional<Term> substitutedWith = get(t);
+            if (substitutedWith.isPresent()) {
+                return substitutedWith.get();
             } else {
                 return t;
             }
@@ -72,12 +79,14 @@ class Substitution {
     }
 
     /**
-     * @param {t} Variable to check.
+     * Check if a term is replaced by this subsitution.
+     * 
+     * @param {t} Term to check.
      * @return The term the variable is subsituted with or null if the variable
      * is not substituted.
      */
-    public Term get(Term t) {
-        return substitution.get(t);
+    public Optional<Term> get(Term t) {
+        return Optional.ofNullable(substitution.get(t));
     }
 
     @Override

@@ -38,7 +38,7 @@ public class Constant implements Term {
     }
 
     @Override
-    public boolean contains(FreeVariable x) {
+    public boolean contains(Variable x) {
         return false;
     }
 }

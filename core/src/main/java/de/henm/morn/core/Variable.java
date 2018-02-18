@@ -19,11 +19,11 @@ package de.henm.morn.core;
  * 
  * @author henm
  */
-public class FreeVariable implements Term {
+public class Variable implements Term {
 
     private final String name;
 
-    public FreeVariable(String name) {
+    public Variable(String name) {
         this.name = name;
     }
 
@@ -38,7 +38,7 @@ public class FreeVariable implements Term {
     }
 
     @Override
-    public boolean contains(FreeVariable x) {
+    public boolean contains(Variable x) {
         return false;
     }
 }

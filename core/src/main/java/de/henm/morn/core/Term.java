@@ -34,6 +34,6 @@ public interface Term {
      * @param {x} Variable to check.
      * @return True iff X does occur in this term.
      */
-    boolean contains(FreeVariable x);
+    boolean contains(Variable x);
 
 }
