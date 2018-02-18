@@ -67,6 +67,8 @@ public class Reasoner {
             PositiveUnificationResult unificationResult) {
         return clause.getBody().stream().map(term -> unificationResult.getSubstitution().apply(term))
                 // Check if the term (with substitution applied) is satisfiable
+                // TODO Performance: After first fail it is not necessary
+                // to query the rest
                 .map(this::query)
                 // Reduced is called to ensure all terms are true in
                 // relation to the program
