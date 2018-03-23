@@ -14,12 +14,16 @@
  */
 package de.henm.morn.reasoner;
 
+import static de.henm.morn.core.L.list;
+import static de.henm.morn.core.L.EMPTY;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 import de.henm.morn.core.CompoundTermFactory;
 import de.henm.morn.core.Constant;
 import de.henm.morn.core.Functor;
+import de.henm.morn.core.L;
 import de.henm.morn.core.Term;
 import de.henm.morn.core.Variable;
 
@@ -82,6 +86,28 @@ public class UnificationTest {
 
         final Term gxb = compoundTermFactory.build(g, x, b);
         Assert.assertFalse(unification.unify(fax, gxb).termsUnify());
+    }
+
+    @Test
+    public void unificationShouldHandleLists() {
+        final Constant a = new Constant("a");
+        final Constant b = new Constant("b");
+        final Constant c = new Constant("c");
+
+        final L l1 = list(a, b, c);
+        final L l2 = list(a, b, c);
+
+        final UnificationResult resultOfSame = unification.unify(l1, l2);
+        Assert.assertTrue(resultOfSame.termsUnify());
+
+        final L l3 = list(c, b, a);
+        final UnificationResult resultOfDifferent = unification.unify(l1, l3);
+        Assert.assertFalse(resultOfDifferent.termsUnify());
+
+        final Variable x = new Variable("X");
+        final Variable y = new Variable("Y");
+        final UnificationResult resultVariables = unification.unify(list(EMPTY, l1), list(x, y));
+        Assert.assertTrue(resultVariables.termsUnify());
     }
 
 }

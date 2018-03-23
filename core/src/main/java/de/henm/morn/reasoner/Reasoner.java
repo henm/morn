@@ -33,10 +33,12 @@ public class Reasoner {
 
     private final List<Clause> clauses;
     private final Unification unification;
+    private final VariableRenaming variableRenaming;
 
     public Reasoner(List<Clause> clauses) {
         this.unification = new Unification();
         this.clauses = clauses;
+        this.variableRenaming = new VariableRenaming();
     }
 
     /**
@@ -58,14 +60,23 @@ public class Reasoner {
     }
 
     private List<Tuple2<Clause, PositiveUnificationResult>> getPossibleClauses(Term a) {
-        return clauses.stream().map(clause -> Tuple.of(clause, unification.unify(a, clause.getHead())))
+        return clauses.stream()
+                // First rename the variables in the clause
+                .map(clause -> variableRenaming.renameVariablesInClause(clause))
+                // Then try to unify
+                .map(clause -> Tuple.of(clause, unification.unify(a, clause.getHead())))
                 .filter(tuple -> tuple._2.termsUnify())
-                .map(tuple -> Tuple.of(tuple._1, (PositiveUnificationResult) tuple._2)).collect(Collectors.toList());
+                .map(tuple -> Tuple.of(tuple._1, (PositiveUnificationResult) tuple._2))
+                .collect(Collectors.toList());
     }
 
     private Optional<Substitution> getQueryResultForUnificationResult(Clause clause,
             PositiveUnificationResult unificationResult) {
-        return clause.getBody().stream().map(term -> unificationResult.getSubstitution().apply(term))
+        return clause.getBody().stream().map(term ->{
+            Term t = unificationResult.getSubstitution().apply(term);
+            System.out.println(unificationResult.getSubstitution());
+            return t;
+        })
                 // Check if the term (with substitution applied) is satisfiable
                 // TODO Performance: After first fail it is not necessary
                 // to query the rest

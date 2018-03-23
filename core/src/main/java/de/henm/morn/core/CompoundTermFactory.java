@@ -36,6 +36,10 @@ public class CompoundTermFactory {
         return new CompoundTerm3(functor, term1, term2, term3);
     }
 
+    public CompoundTerm build(Functor functor, Term term1, Term term2, Term term3, Term term4) {
+        return new CompoundTerm4(functor, term1, term2, term3, term4);
+    }
+
     public CompoundTerm build(Functor functor, List<Term> terms) {
         final int numOfArgs = terms.size();
         switch (numOfArgs) {
@@ -45,6 +49,8 @@ public class CompoundTermFactory {
                 return build(functor, terms.get(0), terms.get(1));
             case 3:
                 return build(functor, terms.get(0), terms.get(1), terms.get(2));
+            case 4:
+                return build(functor, terms.get(0), terms.get(1), terms.get(2), terms.get(3));
             default:
                 throw new UnsupportedOperationException("Not yet supportet");
         }

@@ -14,16 +14,13 @@
  */
 package de.henm.morn.reasoner;
 
+import de.henm.morn.core.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.henm.morn.core.CompoundTerm;
-import de.henm.morn.core.CompoundTermFactory;
-import de.henm.morn.core.Constant;
-import de.henm.morn.core.Functor;
-import de.henm.morn.core.Term;
-import de.henm.morn.core.Variable;
+import static de.henm.morn.core.L.list;
+import static de.henm.morn.core.L.EMPTY;
 
 /**
  * @author henm
@@ -49,7 +46,7 @@ public class SubstitutionTest {
     }
 
     @Test
-    public void applyShouldReplaceVariables() {
+    public void applyShouldrenameVariables() {
         substitution.add(x, y);
         Assert.assertEquals(y, substitution.apply(x));
     }
@@ -100,5 +97,20 @@ public class SubstitutionTest {
         otherSubstitution.add(a, y);
 
         substitution.merge(otherSubstitution);
+    }
+
+    @Test
+    public void emptySubstitutionShouldNotChangeLists() {
+        final Term list = list(a, b);
+        final Term result = substitution.apply(list);
+
+        Assert.assertTrue(result instanceof L);
+
+        final L resultList = (L) result;
+        Assert.assertEquals(a, resultList.getHead());
+
+        final L innerList = (L) resultList.getTail();
+        Assert.assertEquals(b, innerList.getHead());
+        Assert.assertEquals(EMPTY, innerList.getTail());
     }
 }

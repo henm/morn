@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,13 +14,19 @@
  */
 package de.henm.morn;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import de.henm.morn.core.Constant;
 import de.henm.morn.core.Functor;
 import de.henm.morn.core.Variable;
+import org.junit.Assert;
+import org.junit.Test;
 
+import static de.henm.morn.core.Constant.*;
+import static de.henm.morn.core.L.*;
+import static de.henm.morn.core.Variable.*;
+
+/**
+ * @author henm
+ */
 public class MornTest {
 
     @Test
@@ -48,26 +54,26 @@ public class MornTest {
         final Variable z = new Variable("Z");
 
         final KnowledgeBase kb = Morn.buildKB()
-            .addFact(father.apply(terach, abraham))
-            .addFact(father.apply(terach, nachor))
-            .addFact(father.apply(terach, haran))
-            .addFact(father.apply(abraham, isaac))
-            .addFact(father.apply(haran, lot))
-            .addFact(father.apply(haran, milcah))
-            .addFact(father.apply(haran, yiscah))
-            .addFact(mother.apply(sarah, isaac))
-            .addFact(male.apply(terach))
-            .addFact(male.apply(abraham))
-            .addFact(male.apply(nachor))
-            .addFact(male.apply(haran))
-            .addFact(male.apply(isaac))
-            .addFact(male.apply(lot))
-            .addFact(female.apply(sarah))
-            .addFact(female.apply(milcah))
-            .addFact(female.apply(yiscah))
-            .addRule(son.apply(x, y), father.apply(y, x), male.apply(x))
-            .addRule(daughter.apply(x, y), father.apply(y, x), female.apply(x))
-            .addRule(grandfather.apply(x, y), father.apply(x, z), father.apply(z, y));
+                .addFact(father.apply(terach, abraham))
+                .addFact(father.apply(terach, nachor))
+                .addFact(father.apply(terach, haran))
+                .addFact(father.apply(abraham, isaac))
+                .addFact(father.apply(haran, lot))
+                .addFact(father.apply(haran, milcah))
+                .addFact(father.apply(haran, yiscah))
+                .addFact(mother.apply(sarah, isaac))
+                .addFact(male.apply(terach))
+                .addFact(male.apply(abraham))
+                .addFact(male.apply(nachor))
+                .addFact(male.apply(haran))
+                .addFact(male.apply(isaac))
+                .addFact(male.apply(lot))
+                .addFact(female.apply(sarah))
+                .addFact(female.apply(milcah))
+                .addFact(female.apply(yiscah))
+                .addRule(son.apply(x, y), father.apply(y, x), male.apply(x))
+                .addRule(daughter.apply(x, y), father.apply(y, x), female.apply(x))
+                .addRule(grandfather.apply(x, y), father.apply(x, z), father.apply(z, y));
 
         Assert.assertTrue(kb.query(son.apply(isaac, abraham)));
         Assert.assertFalse(kb.query(daughter.apply(isaac, abraham)));
@@ -75,4 +81,21 @@ public class MornTest {
         Assert.assertTrue(kb.query(grandfather.apply(terach, isaac)));
     }
 
+    @Test
+    public void testList() {
+        final Functor append = new Functor("append");
+        final Functor reverse = new Functor("reverse");
+
+        // A simple example computing the reverse of a list
+        final KnowledgeBase kb = Morn.buildKB()
+                .addFact(append.apply(EMPTY, X, X))
+                .addRule(append.apply(list(X, Y), Z, list(X, W)), append.apply(Y, Z, W))
+
+                .addFact(reverse.apply(EMPTY, EMPTY))
+                .addRule(reverse.apply(list(HEAD, TAIL), X), reverse.apply(TAIL, Y), append.apply(Y, list(HEAD), X));
+
+        Assert.assertTrue(kb.query(reverse.apply(EMPTY, EMPTY)));
+        Assert.assertTrue(kb.query(reverse.apply(list(b, c), list(c, b))));
+        Assert.assertFalse(kb.query(reverse.apply(list(a, b, c), list(a, b, c))));
+    }
 }

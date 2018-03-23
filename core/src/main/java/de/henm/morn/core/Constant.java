@@ -20,6 +20,9 @@ package de.henm.morn.core;
 public class Constant implements Term {
 
     public static Constant _true = new Constant("true");
+    public static Constant a = new Constant("a");
+    public static Constant b = new Constant("b");
+    public static Constant c = new Constant("c");
 
     private final String name;
 

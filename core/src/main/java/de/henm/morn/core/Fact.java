@@ -44,7 +44,7 @@ public class Fact implements Clause {
     public boolean isGround() {
         return head.isGround();
     }
-
+ 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

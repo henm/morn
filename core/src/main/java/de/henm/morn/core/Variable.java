@@ -21,6 +21,15 @@ package de.henm.morn.core;
  */
 public class Variable implements Term {
 
+    public static final Variable S = new Variable("S");
+    public static final Variable T = new Variable("T");
+    public static final Variable U = new Variable("U");
+    public static final Variable V = new Variable("V");
+    public static final Variable W = new Variable("W");
+    public static final Variable X = new Variable("X");
+    public static final Variable Y = new Variable("Y");
+    public static final Variable Z = new Variable("Z");
+
     private final String name;
 
     public Variable(String name) {
