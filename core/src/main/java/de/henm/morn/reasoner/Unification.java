@@ -19,6 +19,7 @@ import java.util.Stack;
 
 import de.henm.morn.core.CompoundTerm;
 import de.henm.morn.core.Constant;
+import de.henm.morn.core.L;
 import de.henm.morn.core.Term;
 import de.henm.morn.core.Variable;
 
@@ -38,23 +39,18 @@ public class Unification {
      * @return UnificationResult containing the result of the unification.
      */
     public UnificationResult unify(Term term1, Term term2) {
-        return unify(term1, term2, new Substitution());
-    }
 
-    /**
-     * Check if terms term1 and term2 unify.
-     * 
-     * @param {term1} First term to unify.
-     * @param {term2} Second term to unify.
-     * @param {substitution} The substitution to start with.
-     * @return UnificationResult containing the result of the unification.
-     */
-    public UnificationResult unify(Term term1, Term term2, Substitution substitution) {
+        System.out.println(term1);
+        System.out.println(term2);
+        System.out.println("-----------------------");
+
+        final Substitution substitution = new Substitution();
 
         Stack<Terms> stack = new Stack<>();
         stack.add(new Terms(term1, term2));
 
         while (!stack.isEmpty()) {
+
             final Terms terms = stack.pop().applySubstitution(substitution);
 
             if (terms.firstTermVariableCondition()) {
@@ -67,6 +63,21 @@ public class Unification {
 
             } else if (terms.sameConstants()) {
                 continue;
+
+            } else if (terms.listCondition()) {
+                final L list1 = (L) terms.getTerm1();
+                final L list2 = (L) terms.getTerm2();
+
+                if (list1.isEmpty() && list2.isEmpty()) {
+                    continue;
+                }
+
+                if (list1.isEmpty() || list2.isEmpty()) {
+                    return new NegativeUnificationResult();
+                }
+
+                stack.push(new Terms(list1.getHead(), list2.getHead()));
+                stack.push(new Terms(list1.getTail(), list2.getTail()));
 
             } else if (terms.compoundTermCondition()) {
                 final Iterator<Term> arguments1 = ((CompoundTerm) terms.getTerm1()).getArguments()
@@ -118,6 +129,10 @@ public class Unification {
         public boolean compoundTermCondition() {
             return term1 instanceof CompoundTerm && term2 instanceof CompoundTerm
                     && ((CompoundTerm) term1).getFunctor() == ((CompoundTerm) term2).getFunctor();
+        }
+
+        public boolean listCondition() {
+            return term1 instanceof L && term2 instanceof L;
         }
 
         public Terms applySubstitution(Substitution substutition) {

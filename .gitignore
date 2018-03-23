@@ -40,7 +40,7 @@ buildNumber.properties
 
 # Intellij
 .idea
-morn.iml
+*.iml
 
 # VSCode Java Language Support
 .project

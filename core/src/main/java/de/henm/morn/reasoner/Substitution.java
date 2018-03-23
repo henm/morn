@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,19 +14,20 @@
  */
 package de.henm.morn.reasoner;
 
+import de.henm.morn.core.CompoundTerm;
+import de.henm.morn.core.CompoundTermFactory;
+import de.henm.morn.core.L;
+import de.henm.morn.core.Term;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import de.henm.morn.core.CompoundTerm;
-import de.henm.morn.core.CompoundTermFactory;
-import de.henm.morn.core.Term;
-
 /**
  * A mapping from terms to terms used for unification and query results.
- * 
+ *
  * @author henm
  */
 class Substitution {
@@ -45,19 +46,25 @@ class Substitution {
     }
 
     /**
-    * @param {replace} Variable to add a substitution for.
-    * @param {with} The term which is substituted for the variable.
-    * @return This substitution for builder-pattern.
-    */
+     * @param {replace} Variable to add a substitution for.
+     * @param {with}    The term which is substituted for the variable.
+     * @return This substitution for builder-pattern.
+     */
     public Substitution add(Term replace, Term with) {
         this.substitution.put(replace, with);
+
+        // Replace all occurences of replace in this substitution, too
+        for (Map.Entry<Term, Term> entry : substitution.entrySet()) {
+            substitution.put(entry.getKey(), this.apply(entry.getValue()));
+        }
+
         return this;
     }
 
     /**
      * Build a new term, replacing all occurrences of terms according to this
      * substitution.
-     * 
+     *
      * @param {t} The term apply the substitution to.
      * @return A new term with all occurrences replaced.
      */
@@ -68,9 +75,27 @@ class Substitution {
                 return substituteWith.get();
             } else {
                 final CompoundTerm ct = (CompoundTerm) t;
-                final List<Term> replacedArguments = ct.getArguments().stream().map(arg -> apply(arg))
+                final List<Term> replacedArguments = ct.getArguments().stream()
+                        .map(arg -> apply(arg))
                         .collect(Collectors.toList());
                 return compoundTermFactory.build(ct.getFunctor(), replacedArguments);
+            }
+
+        } else if (t instanceof L) {
+
+            final L l = (L) t;
+            if (l.isEmpty()) {
+                return l;
+            }
+
+            final Optional<Term> substituteWith = get(t);
+            if (substituteWith.isPresent()) {
+                return substituteWith.get();
+            } else {
+                final Term replacedHead = apply(l.getHead());
+                final Term replacedRest = apply(l.getTail());
+
+                return new L(replacedHead, replacedRest);
             }
 
         } else {
@@ -85,7 +110,7 @@ class Substitution {
 
     /**
      * Check if a term is replaced by this subsitution.
-     * 
+     *
      * @param {t} Term to check.
      * @return The term the variable is subsituted with or null if the variable
      * is not substituted.
@@ -104,12 +129,12 @@ class Substitution {
 
     /**
      * Combine the mappings of this substitution with another substitution.
-     * 
+     *
      * @param {otherSubstitution} The other substitution.
      * @return A new substitution containing the mappings from this and the
      * other substitution.
      * @throws IllegalArgumentException Thrown when there are mappings for the
-     * same term in both substitutions.
+     *                                  same term in both substitutions.
      */
     public Substitution merge(Substitution otherSubstitution) {
         final Map<Term, Term> thisMap = substitution;
