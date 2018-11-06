@@ -18,6 +18,7 @@ import de.henm.morn.core.KnowledgeBase;
 import de.henm.morn.core.Morn;
 import de.henm.morn.core.model.Constant;
 import de.henm.morn.core.model.Functor;
+import de.henm.morn.core.model.NumberTerm;
 import de.henm.morn.core.model.Variable;
 import org.junit.Assert;
 import org.junit.Test;
@@ -99,5 +100,16 @@ public class MornTest {
         Assert.assertTrue(kb.query(reverse.apply(EMPTY, EMPTY)));
         Assert.assertTrue(kb.query(reverse.apply(list(b, c), list(c, b))));
         Assert.assertFalse(kb.query(reverse.apply(list(a, b, c), list(a, b, c))));
+    }
+
+    @Test
+    public void testNumber() {
+        final Functor equals = new Functor("equals");
+
+        final KnowledgeBase kb = Morn.buildKB()
+                .addFact(equals.apply(X, X));
+
+        Assert.assertTrue(kb.query(equals.apply(new NumberTerm(1), new NumberTerm(1))));
+        Assert.assertFalse(kb.query(equals.apply(new NumberTerm(1), new Constant("c"))));
     }
 }

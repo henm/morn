@@ -17,15 +17,9 @@ package de.henm.morn.core.reasoner;
 import static de.henm.morn.core.model.L.list;
 import static de.henm.morn.core.model.L.EMPTY;
 
+import de.henm.morn.core.model.*;
 import org.junit.Assert;
 import org.junit.Test;
-
-import de.henm.morn.core.model.CompoundTermFactory;
-import de.henm.morn.core.model.Constant;
-import de.henm.morn.core.model.Functor;
-import de.henm.morn.core.model.L;
-import de.henm.morn.core.model.Term;
-import de.henm.morn.core.model.Variable;
 
 /**
  * @author henm
@@ -108,6 +102,26 @@ public class UnificationTest {
         final Variable y = new Variable("Y");
         final UnificationResult resultVariables = unification.unify(list(EMPTY, l1), list(x, y));
         Assert.assertTrue(resultVariables.termsUnify());
+    }
+
+    @Test
+    public void unificationShouldHandleIntegerTerms() {
+        final IntegerTerm nt1a = new IntegerTerm(1);
+        final IntegerTerm nt1b = new IntegerTerm(1);
+        final IntegerTerm nt2 = new IntegerTerm(2);
+
+        final UnificationResult resultOfSame = unification.unify(nt1a, nt1b);
+        Assert.assertTrue(resultOfSame.termsUnify());
+
+        final UnificationResult resultOfDifferent = unification.unify(nt1a, nt2);
+        Assert.assertFalse(resultOfDifferent.termsUnify());
+
+        final Variable x = new Variable("X");
+        final UnificationResult resultWithSubstitution = unification.unify(nt2, x);
+        Assert.assertTrue(resultWithSubstitution.termsUnify());
+
+        final UnificationResult resultWithList = unification.unify(list(nt1a, nt2), list(x, nt2));
+        Assert.assertTrue(resultWithList.termsUnify());
     }
 
 }
