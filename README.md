@@ -1,9 +1,16 @@
 # Morn
 
 Morn will be a library for logical programming in Java.
-Currently only ground queries are supported.
+
+## Installation
+
+To build and install morn run `mvn install`.
+
+
+## Examples
 
 A working example looks like this (compare [The Art of Prolog](https://mitpress.mit.edu/books/art-prolog)):
+
 ```Java
 final Functor father = new Functor("father");
 final Functor mother = new Functor("mother");
@@ -54,3 +61,5 @@ kb.query(daughter.apply(isaac, abraham));
 kb.query(daughter.apply(milcah, haran));
 kb.query(grandfather.apply(terach, isaac));
 ```
+
+Further examples might be found in [MornTest.java](core/src/test/java/de/henm/morn/core/MornTest.java).
