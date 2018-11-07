@@ -14,10 +14,7 @@
  */
 package de.henm.morn.core.reasoner;
 
-import de.henm.morn.core.model.CompoundTerm;
-import de.henm.morn.core.model.CompoundTermFactory;
-import de.henm.morn.core.model.L;
-import de.henm.morn.core.model.Term;
+import de.henm.morn.core.model.*;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -79,6 +76,17 @@ class Substitution {
                         .map(arg -> apply(arg))
                         .collect(Collectors.toList());
                 return compoundTermFactory.build(ct.getFunctor(), replacedArguments);
+            }
+
+        } else if (t instanceof PredicateTerm) {
+            final Optional<Term> substituteWith = get(t);
+            if (substituteWith.isPresent()) {
+                return substituteWith.get();
+            } else {
+                final PredicateTerm nt = (PredicateTerm) t;
+                final Term replaced1 = apply(nt.getT1());
+                final Term replaced2 = apply(nt.getT2());
+                return new PredicateTerm(nt.getPredicate(), replaced1, replaced2);
             }
 
         } else if (t instanceof L) {
