@@ -14,11 +14,7 @@
  */
 package de.henm.morn.core;
 
-import de.henm.morn.core.KnowledgeBase;
-import de.henm.morn.core.Morn;
-import de.henm.morn.core.model.Constant;
-import de.henm.morn.core.model.Functor;
-import de.henm.morn.core.model.Variable;
+import de.henm.morn.core.model.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,6 +23,8 @@ import static de.henm.morn.core.model.L.*;
 import static de.henm.morn.core.model.Variable.*;
 
 /**
+ * Integration tests.
+ *
  * @author henm
  */
 public class MornTest {
@@ -99,5 +97,72 @@ public class MornTest {
         Assert.assertTrue(kb.query(reverse.apply(EMPTY, EMPTY)));
         Assert.assertTrue(kb.query(reverse.apply(list(b, c), list(c, b))));
         Assert.assertFalse(kb.query(reverse.apply(list(a, b, c), list(a, b, c))));
+    }
+
+    @Test
+    public void testInteger() {
+        final Functor equals = new Functor("equals");
+
+        final KnowledgeBase kb = Morn.buildKB()
+                .addFact(equals.apply(X, X));
+
+        Assert.assertTrue(kb.query(equals.apply(new IntegerTerm(1), new IntegerTerm(1))));
+        Assert.assertFalse(kb.query(equals.apply(new IntegerTerm(1), new Constant("c"))));
+    }
+
+    @Test
+    public void testSimplePredicate() {
+        final PredicateFunctor smaller = new PredicateFunctor((x, y) -> x < y);
+
+        final KnowledgeBase kb = Morn.buildKB();
+        Assert.assertTrue(kb.query(smaller.apply(new IntegerTerm(1), new IntegerTerm(2))));
+        Assert.assertFalse(kb.query(smaller.apply(new IntegerTerm(2), new IntegerTerm(1))));
+    }
+
+    @Test
+    public void testQuicksort() {
+        final Functor quicksort = new Functor("quicksort");
+        final Functor partition = new Functor("partition");
+        final Functor append = new Functor("append");
+
+        final Variable left = new Variable("left");
+        final Variable right = new Variable("right");
+        final Variable ls = new Variable("ls");
+        final Variable rs = new Variable("rs");
+
+        final PredicateFunctor leq = new PredicateFunctor((x, y) -> x <= y);
+        final PredicateFunctor greater = new PredicateFunctor((x, y) -> x > y);
+
+        final KnowledgeBase kb = Morn.buildKB()
+                .addRule(quicksort.apply(list(X, Z), Y),
+                        partition.apply(Z, X, left, right),
+                        quicksort.apply(left, ls),
+                        quicksort.apply(right, rs),
+                        append.apply(ls, list(X, rs), Y)
+                )
+                .addFact(quicksort.apply(EMPTY, EMPTY))
+                .addRule(partition.apply(list(X, Z), Y, list(X, ls), rs),
+                        leq.apply(X, Y),
+                        partition.apply(Z, Y, ls, rs)
+                )
+                .addRule(partition.apply(list(X, Z), Y, ls, list(X, rs)),
+                        greater.apply(X, Y),
+                        partition.apply(Z, Y, ls, rs))
+                .addFact(partition.apply(EMPTY, Y, EMPTY, EMPTY))
+                .addFact(append.apply(EMPTY, X, X))
+                .addRule(append.apply(list(X, Z), Y, list(X, U)),
+                        append.apply(Z, Y, U));
+
+        Assert.assertTrue(kb.query(quicksort.apply(EMPTY, EMPTY)));
+
+        final IntegerTerm one = new IntegerTerm(1);
+        final IntegerTerm two = new IntegerTerm(2);
+        final IntegerTerm three = new IntegerTerm(3);
+        final IntegerTerm four = new IntegerTerm(4);
+        final IntegerTerm five = new IntegerTerm(5);
+        Assert.assertTrue(kb.query(quicksort.apply(
+                list(one, three, five, four, two),
+                list(one, two, three, four, five))
+        ));
     }
 }

@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,22 +14,12 @@
  */
 package de.henm.morn.core.reasoner;
 
-import static de.henm.morn.core.model.L.list;
+import de.henm.morn.core.model.*;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import de.henm.morn.core.model.Clause;
-import de.henm.morn.core.model.CompoundTerm;
-import de.henm.morn.core.model.CompoundTermFactory;
-import de.henm.morn.core.model.Constant;
-import de.henm.morn.core.model.Fact;
-import de.henm.morn.core.model.L;
-import de.henm.morn.core.model.Rule;
-import de.henm.morn.core.model.Term;
-import de.henm.morn.core.model.Variable;
 
 /**
  * Generates new, unique variable names used during the reasoning.
@@ -67,8 +57,8 @@ class VariableRenaming {
         final Map<Variable, Variable> alreadyReplacedVariables = new LinkedHashMap<>();
         final Term head = renameVariablesInTerm(rule.getHead(), alreadyReplacedVariables);
         final List<Term> body = rule.getBody().stream()
-            .map(t -> renameVariablesInTerm(t, alreadyReplacedVariables))
-            .collect(Collectors.toList());
+                .map(t -> renameVariablesInTerm(t, alreadyReplacedVariables))
+                .collect(Collectors.toList());
 
         return new Rule(head, body);
     }
@@ -77,13 +67,20 @@ class VariableRenaming {
         if (term instanceof CompoundTerm) {
             final CompoundTerm compoundTerm = (CompoundTerm) term;
             final List<Term> args = compoundTerm.getArguments().stream()
-                .map(t -> renameVariablesInTerm(t, alreadyReplacedVariables))
-                .collect(Collectors.toList());
+                    .map(t -> renameVariablesInTerm(t, alreadyReplacedVariables))
+                    .collect(Collectors.toList());
 
             return compoundTermfactory.build(
-                compoundTerm.getFunctor(),
-                args
+                    compoundTerm.getFunctor(),
+                    args
             );
+
+        } else if (term instanceof PredicateTerm) {
+            final PredicateTerm predicateTerm = (PredicateTerm) term;
+            final Term term1 = renameVariablesInTerm(predicateTerm.getT1(), alreadyReplacedVariables);
+            final Term term2 = renameVariablesInTerm(predicateTerm.getT2(), alreadyReplacedVariables);
+
+            return new PredicateTerm(predicateTerm.getPredicate(), term1, term2);
 
         } else if (term instanceof L) {
             final L l = (L) term;
@@ -111,7 +108,7 @@ class VariableRenaming {
 
         } else {
             throw new IllegalArgumentException(String.format("Unknown term %s", term));
-            
+
         }
     }
 

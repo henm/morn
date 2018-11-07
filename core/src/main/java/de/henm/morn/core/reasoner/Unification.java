@@ -17,11 +17,7 @@ package de.henm.morn.core.reasoner;
 import java.util.Iterator;
 import java.util.Stack;
 
-import de.henm.morn.core.model.CompoundTerm;
-import de.henm.morn.core.model.Constant;
-import de.henm.morn.core.model.L;
-import de.henm.morn.core.model.Term;
-import de.henm.morn.core.model.Variable;
+import de.henm.morn.core.model.*;
 
 /**
  * Unification-Algorithm based on the algorithm given in "The Art of Prolog"
@@ -58,6 +54,9 @@ public class Unification {
                 substitution.add(variable, terms.getTerm1());
 
             } else if (terms.sameConstants()) {
+                continue;
+
+            } else if (terms.sameInteger()) {
                 continue;
 
             } else if (terms.listCondition()) {
@@ -120,6 +119,17 @@ public class Unification {
 
         public boolean sameConstants() {
             return term1 instanceof Constant && term1 instanceof Constant && term1 == term2;
+        }
+
+        public boolean sameInteger() {
+            if (term1 instanceof IntegerTerm && term2 instanceof IntegerTerm) {
+                final IntegerTerm nt1 = (IntegerTerm) term1;
+                final IntegerTerm nt2 = (IntegerTerm) term2;
+
+                return nt1.getValue() == nt2.getValue();
+            } else {
+                return false;
+            }
         }
 
         public boolean compoundTermCondition() {

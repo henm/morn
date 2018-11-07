@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,15 +14,17 @@
  */
 package de.henm.morn.core.reasoner;
 
+import de.henm.morn.core.model.Clause;
+import de.henm.morn.core.model.IntegerTerm;
+import de.henm.morn.core.model.PredicateTerm;
+import de.henm.morn.core.model.Term;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import de.henm.morn.core.model.Clause;
-import de.henm.morn.core.model.Term;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 
 /**
  * Simple reasoner.
@@ -34,25 +36,52 @@ public class Reasoner {
     private final List<Clause> clauses;
     private final Unification unification;
     private final VariableRenaming variableRenaming;
+    private final ClauseOrdering clauseOrdering;
 
     public Reasoner(List<Clause> clauses) {
         this.unification = new Unification();
         this.clauses = clauses;
         this.variableRenaming = new VariableRenaming();
+        this.clauseOrdering = new ClauseOrdering();
     }
 
     /**
      * Answer a query for program.
-     * 
+     *
      * @param {goal} The goal to query.
      * @return Optional containing a possible substitution iff the goal can be
      * deduced from the program.
      */
     public Optional<Substitution> query(Term goal) {
+
+        if (goal instanceof PredicateTerm) {
+            return testPredicate((PredicateTerm) goal);
+        } else {
+            return handleQueryWithUnification(goal);
+        }
+    }
+
+    private Optional<Substitution> testPredicate(PredicateTerm predicateTerm) {
+        if (predicateTerm.getT1() instanceof IntegerTerm && predicateTerm.getT2() instanceof IntegerTerm) {
+            final IntegerTerm nt1 = (IntegerTerm) predicateTerm.getT1();
+            final IntegerTerm nt2 = (IntegerTerm) predicateTerm.getT2();
+            if (predicateTerm.test(nt1.getValue(), nt2.getValue())) {
+                return Optional.of(new Substitution());
+            } else {
+                return Optional.empty();
+            }
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<Substitution> handleQueryWithUnification(Term goal) {
         final List<Tuple2<Clause, PositiveUnificationResult>> clauses = getPossibleClauses(goal);
 
         // This stream contains the outcomes of all the possible clauses
-        final Stream<Optional<Substitution>> results = clauses.stream()
+        final Stream<Optional<Substitution>> results = clauses
+                .stream()
+                .sorted((x, y) -> clauseOrdering.compare(x._1, y._1))
                 .map(r -> getQueryResultForUnificationResult(r._1, r._2));
 
         // Only the successfull branches are relevant
@@ -71,11 +100,12 @@ public class Reasoner {
     }
 
     private Optional<Substitution> getQueryResultForUnificationResult(Clause clause,
-            PositiveUnificationResult unificationResult) {
-        return clause.getBody().stream().map(term ->{
-            Term t = unificationResult.getSubstitution().apply(term);
-            return t;
-        })
+                                                                      PositiveUnificationResult unificationResult) {
+        return clause.getBody().stream()
+                .map(term -> {
+                    Term t = unificationResult.getSubstitution().apply(term);
+                    return t;
+                })
                 // Check if the term (with substitution applied) is satisfiable
                 // TODO Performance: After first fail it is not necessary
                 // to query the rest
